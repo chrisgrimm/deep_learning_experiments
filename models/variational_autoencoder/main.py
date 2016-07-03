@@ -28,7 +28,7 @@ saver = tf.train.Saver(params)
 
 sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
-should_train = True
+should_train = False
 if should_train:
     batch_size = 50
     for i in range(20):
