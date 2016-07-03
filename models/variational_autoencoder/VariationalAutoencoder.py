@@ -9,23 +9,26 @@ def log_normal_pdf(x, mu, diag_sigmas):
 def log_bernoulli_pmf(x, p1):
     return tf.log(p1 * tf.float32(x == 1) + (1 - p1) * tf.float32(x == 0))
 
-def VAE(input, hiddenSize, codeSize, rvType):
+def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
+    p = prefix
+    vars = dict()
     input_dim = input.get_shape()[1].value
     # encoding layers
-    W1 = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))
-    b1 = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
+    W1 = vars[p+'W1'] = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))
+    b1 = vars[p+'b1'] = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
+
     h1 = tf.nn.tanh(tf.add(tf.matmul(input, W1), b1))
-    W2_mu = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
-    b2_mu = tf.Variable(tf.constant(0.1, shape=[codeSize]))
-    W2_sigma = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
-    b2_sigma = tf.Variable(tf.constant(0.1, shape=[codeSize]))
+    W2_mu = vars[p+'W2_mu'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
+    b2_mu = vars[p+'b2_mu'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
+    W2_sigma = vars[p+'W2_sigma'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
+    b2_sigma = vars[p+'b2_sigma'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
     if rvType == 'gaussian':
         q_mu = tf.add(tf.matmul(h1, W2_mu), b2_mu)
         q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma) + 10**-5)
-        return [q_mu, q_sigma]
+        return [q_mu, q_sigma], vars
     elif rvType == 'bernoulli':
         q_p1 = tf.sigmoid(tf.add(tf.matmul(h1, W2_mu), b2_mu))
-        return [q_p1]
+        return [q_p1], vars
     else:
         raise Exception('Unrecognized rvType.')
 
