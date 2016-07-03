@@ -30,7 +30,7 @@ sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
 should_train = True
 if should_train:
-    batch_size = 50
+    batch_size = 100
     for i in range(20):
         avg_loss = []
         for y in range(len(mnist.train.images)/batch_size):
