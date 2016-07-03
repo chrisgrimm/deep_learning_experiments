@@ -35,7 +35,7 @@ if should_train:
         avg_loss = []
         for y in range(len(mnist.train.images)/batch_size):
             data = mnist.train.next_batch(batch_size)
-            feed_dict = {x: data[0], z_random: np.random.normal((batch_size, 20)), recon_random: np.random.normal((batch_size, 28*28))}
+            feed_dict = {x: data[0], z_random: np.random.normal(size=(batch_size, 20)), recon_random: np.random.normal(size=(batch_size, 28*28))}
             _, ll = sess.run([train, loss], feed_dict=feed_dict)
             avg_loss.append(ll)
         print i
@@ -47,8 +47,8 @@ else:
     batch_size = 1
     data = mnist.train.next_batch(batch_size)
     feed_dict = {x: data[0],
-             z_random: np.random.normal((batch_size, 20)),
-             recon_random: np.random.normal((batch_size, 28*28))}
+             z_random: np.random.normal(size=(batch_size, 20)),
+             recon_random: np.random.normal(size=(batch_size, 28*28))}
     res, res_mu = sess.run([recon, recon_params[0]], feed_dict)
     f, [ax1, ax2, ax3] = plt.subplots(1, 3)
     ax1.imshow(np.reshape(res, [28, 28]))
