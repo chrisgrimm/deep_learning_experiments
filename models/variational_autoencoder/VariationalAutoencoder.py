@@ -1,6 +1,13 @@
 import tensorflow as tf
 import numpy as np
 
+def log_normal_pdf(x, mu, diag_sigmas):
+    D = mu.get_shape()[1]
+    exp_part = -0.5 * tf.reduce_sum(tf.mul(tf.mul((x - mu), (1.0/(tf.pow(diag_sigmas,2)))), (x - mu)), reduction_indices=1)
+    return (-D**2 / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(diag_sigmas), reduction_indices=1) + exp_part
+
+def log_bernoulli_pmf(x, p1):
+    return tf.log(p1 * tf.float32(x == 1) + (1 - p1) * tf.float32(x == 0))
 
 def VAE(input, hiddenSize, codeSize, rvType):
     input_dim = input.get_shape()[1]
