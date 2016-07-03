@@ -25,7 +25,8 @@ params = {}
 params.update(enc_vars)
 params.update(dec_vars)
 saver = tf.train.Saver(params)
-
+for name, item in params.items():
+    print name, item
 sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
 should_train = True
