@@ -19,8 +19,7 @@ q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
 p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
     log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
 loss = -tf.reduce_mean((p - q), reduction_indices=0)
-global_step = tf.Variable(tf.constant(0), trainable=False)
-train = tf.train.AdamOptimizer().minimize(loss, global_step=global_step)
+train = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 params = {}
 params.update(enc_vars)
