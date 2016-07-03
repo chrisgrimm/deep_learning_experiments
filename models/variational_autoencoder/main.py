@@ -18,6 +18,7 @@ q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
 p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
     log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
 loss = -tf.reduce_mean((p - q), reduction_indices=0)
+global_step =
 train = tf.train.AdamOptimizer().minimize(loss)
 
 params = {}
@@ -31,8 +32,6 @@ batch_size = 50
 for i in range(75):
     avg_loss = []
     for y in range(len(mnist.train.images)/batch_size):
-        if y % 100 == 0:
-            print y
         data = mnist.train.next_batch(batch_size)
         feed_dict = {x: data[0], z_random: np.random.random((batch_size, 20)), recon_random: np.random.random((batch_size, 28*28))}
         _, ll = sess.run([train, loss], feed_dict=feed_dict)
