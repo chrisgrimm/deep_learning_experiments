@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 from tensorflow.examples.tutorials.mnist import input_data
 from models.variational_autoencoder.VariationalAutoencoder import VAE_realize, VAE, log_normal_pdf
 sess = tf.Session()
@@ -17,7 +18,7 @@ recon = VAE_realize(recon_params, recon_random, 'gaussian')
 q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
 p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
     log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
-loss = -tf.reduce_mean((p - q), reduction_indices=0)
+loss = -tf.reduce_mean((p + q), reduction_indices=0)
 train = tf.train.AdamOptimizer().minimize(loss)
 
 params = {}
@@ -27,15 +28,30 @@ saver = tf.train.Saver(params)
 
 sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
-batch_size = 50
-for i in range(20):
-    avg_loss = []
-    for y in range(len(mnist.train.images)/batch_size):
-        data = mnist.train.next_batch(batch_size)
-        feed_dict = {x: data[0], z_random: np.random.random((batch_size, 20)), recon_random: np.random.random((batch_size, 28*28))}
-        _, ll = sess.run([train, loss], feed_dict=feed_dict)
-        avg_loss.append(ll)
-    print i
-    print 'average loss:', np.mean(avg_loss)
+should_train = True
+if should_train:
+    batch_size = 50
+    for i in range(20):
+        avg_loss = []
+        for y in range(len(mnist.train.images)/batch_size):
+            data = mnist.train.next_batch(batch_size)
+            feed_dict = {x: data[0], z_random: np.random.random((batch_size, 20)), recon_random: np.random.random((batch_size, 28*28))}
+            _, ll = sess.run([train, loss], feed_dict=feed_dict)
+            avg_loss.append(ll)
+        print i
+        print 'average loss:', np.mean(avg_loss)
 
-saver.save(sess, './vars')
+    saver.save(sess, './vars')
+else:
+    saver.restore(sess, './vars')
+    batch_size = 1
+    data = mnist.train.next_batch(batch_size)
+    feed_dict = {x: data[0],
+             z_random: np.random.random((batch_size, 20)),
+             recon_random: np.random.random((batch_size, 28*28))}
+    res = sess.run([recon], feed_dict)
+    f, [ax1, ax2] = plt.subplots(1, 2)
+    ax1.imshow(np.reshape(res, [28, 28]))
+    ax2.imshow(np.reshape(data[0], [28, 28]))
+    f.show()
+    raw_input()
