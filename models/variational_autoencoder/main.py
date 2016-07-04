@@ -8,15 +8,15 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # set up autoencoder graph
 x = tf.placeholder(tf.float32, [None, 28*28])
-hidden_params, enc_vars = VAE(x, 500, 20, 'gaussian', prefix='enc')
+hidden_params, enc_vars = VAE(x, 100, 20, 'gaussian', prefix='enc')
 z_random = tf.placeholder(tf.float32, [None, 20])
 hidden = VAE_realize(hidden_params, z_random, 'gaussian')
-recon_params, dec_vars = VAE(hidden, 500, 28*28, 'gaussian', prefix='dec')
+recon_params, dec_vars = VAE(hidden, 100, 28*28, 'gaussian', prefix='dec')
 recon_random = tf.placeholder(tf.float32, [None, 28*28])
 recon = VAE_realize(recon_params, recon_random, 'gaussian')
 # set up loss function and training
 q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
-p = log_normal_pdf(x, recon_params[0], recon_params[1]) + \
+p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
     log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
 loss = tf.reduce_mean(-(p - q), reduction_indices=0)
 
@@ -34,7 +34,7 @@ for name, item in params.items():
     print name, item
 sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
-should_train = True
+should_train = False
 if should_train:
     batch_size = 100
     for i in range(20):
