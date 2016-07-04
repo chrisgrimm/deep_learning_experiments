@@ -23,7 +23,7 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     b2_sigma = vars[p+'b2_sigma'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
     if rvType == 'gaussian':
         q_mu = tf.add(tf.matmul(h1, W2_mu), b2_mu)
-        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 10**-5
+        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 10**-10
         return [q_mu, q_sigma], vars
     elif rvType == 'bernoulli':
         q_p1 = tf.sigmoid(tf.add(tf.matmul(h1, W2_mu), b2_mu))
