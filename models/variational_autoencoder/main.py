@@ -11,7 +11,7 @@ x = tf.placeholder(tf.float32, [None, 28*28])
 encoding_params, enc_vars = VAE(x, 500, 20, 'gaussian', prefix='enc_')
 z_random = tf.placeholder(tf.float32, [None, 20])
 encoding = VAE_realize(encoding_params, z_random, 'gaussian')
-recon_params, dec_vars = VAE(encoding, 500, 28*28, 'bernoulli', prefix='dec_')
+recon_params, dec_vars = VAE(encoding, 500, 28*28, 'gaussian', prefix='dec_')
 #recon_random = tf.placeholder(tf.float32, [None, 28*28])
 #recon = VAE_realize(recon_params, recon_random, 'gaussian')
 # set up loss function and training
