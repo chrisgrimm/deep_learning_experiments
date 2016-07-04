@@ -26,7 +26,7 @@ loss = tf.reduce_mean(-(p - q), reduction_indices=0)
 #normal_p_x_given_z = (-28**2 / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(p_sigma + 10**-10), reduction_indices=1) + exp_part
 #KL_term = 0.5 * tf.reduce_sum(1.0 + 2*tf.log(q_sigma + 10**-10) - tf.pow(q_mu, 2) - tf.pow(q_sigma, 2), reduction_indices=1)
 #loss = -1*tf.reduce_mean(KL_term + normal_p_x_given_z, reduction_indices=0)
-loss = tf.reduce_mean(tf.reduce_mean(tf.pow(x - recon_params[0], 2), reduction_indices=1), reduction_indices=0)
+#loss = tf.reduce_mean(tf.reduce_mean(tf.pow(x - recon_params[0], 2), reduction_indices=1), reduction_indices=0)
 train = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 params = {}
