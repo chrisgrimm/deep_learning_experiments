@@ -28,13 +28,13 @@ def get_batch(batch_size):
     idx1 = np.random.choice(range(len(mnist.train.images)), batch_size)
     idx2 = np.random.choice(range(len(mnist.train.images)), batch_size)
     images1 = mnist.train.images[idx1, :]
-    labels1 = mnist.train.labels[idx1, :]
+    labels1 = mnist.train.labels[idx1]
     images2 = mnist.train.images[idx2, :]
-    labels2 = mnist.train.labels[idx2, :]
+    labels2 = mnist.train.labels[idx2]
     images = []
     labels = []
     for (image1, image2, label1, label2) in zip(images1, images2, labels1, labels2):
-        images.append(combineTwo(image1, image2))
+        images.append(np.reshape(combineTwo(image1, image2), [1600]))
         label = np.zeros(10)
         label[label1] = 1
         label[label2] = 1

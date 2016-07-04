@@ -97,23 +97,23 @@ class AIR(object):
 
     def add_randomness(self, feed_dict, batch_size):
         for i in range(self.N):
-            feed_dict[self.z_what_random[i]] = np.random.random((batch_size, 20))
-            feed_dict[self.z_where_random[i]] = np.random.random((batch_size, 3))
-            feed_dict[self.z_pres_random[i]]  = np.random.random((batch_size, 1))
-            feed_dict[self.inv_where_random[i]] = np.random.random((batch_size, 3))
+            feed_dict[self.z_what_random[i]] = np.random.normal(size=(batch_size, 20))
+            feed_dict[self.z_where_random[i]] = np.random.normal(size=(batch_size, 3))
+            feed_dict[self.z_pres_random[i]]  = np.random.normal(size=(batch_size, 1))
+            feed_dict[self.inv_where_random[i]] = np.random.normal(size=(batch_size, 3))
 
     def train_batch(self, batch, batch_size):
         feed_dict = {}
         self.add_randomness(feed_dict, batch_size)
         feed_dict[self.input] = batch
-        [_, loss] = self.sess([self.train, self.loss], feed_dict)
+        [_, loss] = self.sess.run([self.train, self.loss], feed_dict)
         return loss
 
     def reconstruct(self, image, batch_size):
         feed_dict = {}
         self.add_randomness(feed_dict, batch_size)
         feed_dict[self.input] = image
-        return self.sess(self.output, feed_dict)
+        return self.sess.run(self.output, feed_dict)
 
 
 
