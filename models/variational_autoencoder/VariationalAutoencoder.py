@@ -25,7 +25,7 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     if rvType == 'gaussian':
         q_mu = tf.add(tf.matmul(h1, W2_mu), b2_mu)
         # no idea why this value works as well as it does. should probably change it later. (0.25)
-        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 0.25
+        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + (0.25 if rvType == 'gaussian' else 0.0)
         return [q_mu, q_sigma], vars
     elif rvType == 'bernoulli':
         q_p1 = tf.sigmoid(tf.add(tf.matmul(h1, W2_mu), b2_mu))
