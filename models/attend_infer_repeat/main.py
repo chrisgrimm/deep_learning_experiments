@@ -3,6 +3,9 @@ import numpy as np
 from models.attend_infer_repeat.AIR import AIR
 from data_generation import get_batch
 
+
+print 'about to start!'
+raw_input()
 sess = tf.Session()
 
 batch_size = 100
