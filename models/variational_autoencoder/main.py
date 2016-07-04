@@ -12,18 +12,18 @@ hidden_params, enc_vars = VAE(x, 100, 20, 'gaussian', prefix='enc')
 z_random = tf.placeholder(tf.float32, [None, 20])
 hidden = VAE_realize(hidden_params, z_random, 'gaussian')
 recon_params, dec_vars = VAE(hidden, 100, 28*28, 'gaussian', prefix='dec')
-recon_random = tf.placeholder(tf.float32, [None, 28*28])
-recon = VAE_realize(recon_params, recon_random, 'gaussian')
+#recon_random = tf.placeholder(tf.float32, [None, 28*28])
+#recon = VAE_realize(recon_params, recon_random, 'gaussian')
 # set up loss function and training
-q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
-p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
-    log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
-loss = tf.reduce_mean(-(p - q), reduction_indices=0)
+#q = log_normal_pdf(hidden, hidden_params[0], hidden_params[1])
+#p = log_normal_pdf(recon, recon_params[0], recon_params[1]) + \
+#    log_normal_pdf(hidden, tf.zeros_like(hidden_params[0]), tf.ones_like(hidden_params[1]))
+#loss = tf.reduce_mean(-(p - q), reduction_indices=0)
 
-#[q_mu, q_sigma] = hidden_params
-#KL_term = 0.5 * tf.reduce_sum(1.0 + tf.log(tf.pow(q_sigma, 2) + 10**-10) - tf.pow(q_mu, 2) - tf.pow(q_sigma, 2), reduction_indices=1)
-#p_x_given_z = log_normal_pdf(x, recon_params[0], recon_params[1])
-#loss = -1 * tf.reduce_mean(KL_term + p_x_given_z, reduction_indices=0)
+[q_mu, q_sigma] = hidden_params
+KL_term = 0.5 * tf.reduce_sum(1.0 + tf.log(tf.pow(q_sigma, 2) + 10**-10) - tf.pow(q_mu, 2) - tf.pow(q_sigma, 2), reduction_indices=1)
+p_x_given_z = log_normal_pdf(x, recon_params[0], recon_params[1])
+loss = -1 * tf.reduce_mean(KL_term + p_x_given_z, reduction_indices=0)
 train = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 params = {}
