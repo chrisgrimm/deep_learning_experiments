@@ -16,7 +16,7 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     # encoding layers
     W1 = vars[p+'W1'] = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))
     b1 = vars[p+'b1'] = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
-    h1 = tf.nn.sigmoid(tf.add(tf.matmul(input, W1), b1))
+    h1 = tf.nn.sigmoid(tf.add(tf.matmul(input, W1), b1)) + 1
     W2_mu = vars[p+'W2_mu'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
     b2_mu = vars[p+'b2_mu'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
     W2_sigma = vars[p+'W2_sigma'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
