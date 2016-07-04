@@ -19,14 +19,6 @@ q = log_normal_pdf(encoding, encoding_params[0], encoding_params[1])
 p = log_normal_pdf(x, recon_params[0], recon_params[1]) + \
     log_normal_pdf(encoding, tf.zeros_like(encoding_params[0]), tf.ones_like(encoding_params[1]))
 loss = tf.reduce_mean(-(p - q), reduction_indices=0)
-#images = x
-#[p_mu, p_sigma] = recon_params
-#[q_mu, q_sigma] = encoding_params
-#exp_part = -0.5 * tf.reduce_sum(tf.mul(tf.mul((images - p_mu), (1.0/(tf.pow(p_sigma,2)))), (images - p_mu)), reduction_indices=1)
-#normal_p_x_given_z = (-28**2 / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(p_sigma + 10**-10), reduction_indices=1) + exp_part
-#KL_term = 0.5 * tf.reduce_sum(1.0 + 2*tf.log(q_sigma + 10**-10) - tf.pow(q_mu, 2) - tf.pow(q_sigma, 2), reduction_indices=1)
-#loss = -1*tf.reduce_mean(KL_term + normal_p_x_given_z, reduction_indices=0)
-#loss = tf.reduce_mean(tf.reduce_mean(tf.pow(x - recon_params[0], 2), reduction_indices=1), reduction_indices=0)
 train = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 params = {}
@@ -36,7 +28,7 @@ saver = tf.train.Saver(params)
 for name, item in params.items():
     print name, item
 sess.run(tf.initialize_all_variables())
-should_train = True
+should_train = False
 if should_train:
     batch_size = 100
     for i in range(20):
