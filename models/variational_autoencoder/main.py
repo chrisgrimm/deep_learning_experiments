@@ -8,10 +8,10 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # set up autoencoder graph
 x = tf.placeholder(tf.float32, [None, 28*28])
-hidden_params, enc_vars = VAE(x, 100, 20, 'gaussian', prefix='enc')
+hidden_params, enc_vars = VAE(x, 500, 20, 'gaussian', prefix='enc')
 z_random = tf.placeholder(tf.float32, [None, 20])
 hidden = VAE_realize(hidden_params, z_random, 'gaussian')
-recon_params, dec_vars = VAE(hidden, 100, 28*28, 'gaussian', prefix='dec')
+recon_params, dec_vars = VAE(hidden, 500, 28*28, 'gaussian', prefix='dec')
 #recon_random = tf.placeholder(tf.float32, [None, 28*28])
 #recon = VAE_realize(recon_params, recon_random, 'gaussian')
 # set up loss function and training
@@ -56,9 +56,9 @@ else:
     feed_dict = {x: data[0],
              z_random: np.random.normal(size=(batch_size, 20)),
                  }#recon_random: np.random.normal(size=(batch_size, 28*28))}
-    res, res_mu = sess.run([recon, recon_params[0]], feed_dict)
-    f, [ax1, ax2, ax3] = plt.subplots(1, 3)
-    ax1.imshow(np.reshape(res, [28, 28]))
+    res_mu = sess.run(recon_params[0], feed_dict)
+    f, [ax2, ax3] = plt.subplots(1, 2)
+    #ax1.imshow(np.reshape(res, [28, 28]))
     ax2.imshow(np.reshape(res_mu, [28, 28]))
     ax3.imshow(np.reshape(data[0], [28, 28]))
 
