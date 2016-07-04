@@ -23,7 +23,7 @@ loss = tf.reduce_mean(-(p - q), reduction_indices=0)
 #[q_mu, q_sigma] = hidden_params
 #KL_term = 0.5 * tf.reduce_sum(1.0 + tf.log(tf.pow(q_sigma, 2) + 10**-10) - tf.pow(q_mu, 2) - tf.pow(q_sigma, 2), reduction_indices=1)
 #p_x_given_z = log_normal_pdf(x, recon_params[0], recon_params[1])
-loss = -1 * tf.reduce_mean(KL_term + p_x_given_z, reduction_indices=0)
+#loss = -1 * tf.reduce_mean(KL_term + p_x_given_z, reduction_indices=0)
 train = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 params = {}
