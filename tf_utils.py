@@ -18,13 +18,13 @@ def max_pool_2x2(x):
 def connected_layers(input, out_dims, nonlinearities, prefix=''):
     next = input
     vars = dict()
-    for layer, out_dim, nonlinearity in enumerate(zip(out_dims, nonlinearities)):
+    for layer, (out_dim, nonlinearity) in enumerate(zip(out_dims, nonlinearities)):
         next, layer_vars = connected_layer(next, out_dim, nonlinearity, prefix=prefix+'_layer%s_' % layer)
         vars.update(layer_vars)
     return next, vars
 
 def connected_layer(input, out_dim, nonlinearity, prefix=''):
-    in_dim = input.get_shape()[1]
+    in_dim = input.get_shape()[1].value
     vars = dict()
     w = vars[prefix+'w'] = weight_variable([in_dim, out_dim])
     b = vars[prefix+'b'] = bias_variable([out_dim])

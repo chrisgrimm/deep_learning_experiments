@@ -21,6 +21,8 @@ class SpatialTransformerNetwork(object):
         self.input_layer = input_layer
         self.batch_size = tf.shape(self.input_layer)[0]
         self.height, self.width = self.input_layer.get_shape()[1:]
+        self.height = self.height.value
+        self.width = self.width.value
         self.kernel = kernel
         supported_kernels = ['nearest', 'bilinear', 'custom']
         if self.kernel not in supported_kernels:
@@ -30,8 +32,7 @@ class SpatialTransformerNetwork(object):
         self.output_width = output_width
         self.output_height = output_height
         self.flattened = tf.reshape(self.input_layer, shape=[-1, self.height * self.width])
-        # create the network
-        self._gridGeneration()
+
 
     def _2dMeshGrid(self, height, width):
         # produces two index vectors
