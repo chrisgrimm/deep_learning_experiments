@@ -8,7 +8,8 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # set up autoencoder graph
 x = tf.placeholder(tf.float32, [None, 28*28])
-encoding_params, enc_vars = VAE(x, 500, 20, 'gaussian', prefix='enc_')
+x_ = x + 10**-2
+encoding_params, enc_vars = VAE(x_, 500, 20, 'gaussian', prefix='enc_')
 z_random = tf.placeholder(tf.float32, [None, 20])
 encoding = VAE_realize(encoding_params, z_random, 'gaussian')
 recon_params, dec_vars = VAE(encoding, 500, 28*28, 'gaussian', prefix='dec_')
@@ -19,7 +20,7 @@ recon_params, dec_vars = VAE(encoding, 500, 28*28, 'gaussian', prefix='dec_')
 #p = log_normal_pdf(x, recon_params[0], recon_params[1]) + \
 #    log_normal_pdf(encoding, tf.zeros_like(encoding_params[0]), tf.ones_like(encoding_params[1]))
 #loss = tf.reduce_mean(-(p - q), reduction_indices=0)
-images = x
+images = x_
 [p_mu, p_sigma] = recon_params
 [q_mu, q_sigma] = encoding_params
 exp_part = -0.5 * tf.reduce_sum(tf.mul(tf.mul((images - p_mu), (1.0/(tf.pow(p_sigma,2)))), (images - p_mu)), reduction_indices=1)
@@ -36,7 +37,7 @@ saver = tf.train.Saver(params)
 for name, item in params.items():
     print name, item
 sess.run(tf.initialize_all_variables())
-should_train = True
+should_train = False
 if should_train:
     batch_size = 100
     for i in range(20):
