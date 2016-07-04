@@ -28,10 +28,9 @@ class AIR(object):
         ih, iw = self.ih, self.iw
         lstm = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_u)
         state = tf.zeros([self.batch_size, lstm.state_size])
-        print state.get_shape()
         # the 'initial' pres value cant be trainable.
         prev_pres = tf.ones([self.batch_size, 1])
-        cum_q_z_pres = cum_q_z_where = cum_q_z_what = cum_p_x_given_z = cum_p_z = tf.zeros([self.batch_size, 1])
+        cum_q_z_pres = cum_q_z_where = cum_q_z_what = cum_p_x_given_z = cum_p_z = tf.zeros([self.batch_size])
         self.output = tf.zeros_like(x)
         # step through the lstm.
         for iter in range(self.N):
