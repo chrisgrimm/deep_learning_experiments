@@ -34,7 +34,7 @@ for name, item in params.items():
     print name, item
 sess.run(tf.initialize_all_variables())
 # train for 75 batches of 50
-should_train = False
+should_train = True
 if should_train:
     batch_size = 100
     for i in range(20):
