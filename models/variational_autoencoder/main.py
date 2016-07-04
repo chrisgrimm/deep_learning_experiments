@@ -16,7 +16,7 @@ recon_params, dec_vars = VAE(encoding, 500, 28*28, 'gaussian', prefix='dec_')
 #recon = VAE_realize(recon_params, recon_random, 'gaussian')
 # set up loss function and training
 q = log_normal_pdf(encoding, encoding_params[0], encoding_params[1])
-p = log_bernoulli_pmf(x, recon_params[0]) + \
+p = log_normal_pdf(x, recon_params[0], recon_params[1]) + \
     log_normal_pdf(encoding, tf.zeros_like(encoding_params[0]), tf.ones_like(encoding_params[1]))
 loss = tf.reduce_mean(-(p - q), reduction_indices=0)
 train = tf.train.AdamOptimizer(0.001).minimize(loss)
