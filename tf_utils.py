@@ -15,16 +15,19 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
 
-def connected_layers(input, out_dims, nonlinearities):
+def connected_layers(input, out_dims, nonlinearities, prefix=''):
     next = input
-    for out_dim, nonlinearity in zip(out_dims, nonlinearities):
-        next = connected_layer(next, out_dim, nonlinearity)
-    return next
+    vars = dict()
+    for layer, out_dim, nonlinearity in enumerate(zip(out_dims, nonlinearities)):
+        next, layer_vars = connected_layer(next, out_dim, nonlinearity, prefix=prefix+'_layer%s_' % layer)
+        vars.update(layer_vars)
+    return next, vars
 
-def connected_layer(input, out_dim, nonlinearity):
+def connected_layer(input, out_dim, nonlinearity, prefix=''):
     in_dim = input.get_shape()[1]
-    w = weight_variable([in_dim, out_dim])
-    b = bias_variable([out_dim])
+    vars = dict()
+    w = vars[prefix+'w'] = weight_variable([in_dim, out_dim])
+    b = vars[prefix+'b'] = bias_variable([out_dim])
     nonlinearity_mapping = {
         'relu': tf.nn.relu,
         'tanh': tf.nn.tanh,
@@ -33,5 +36,5 @@ def connected_layer(input, out_dim, nonlinearity):
     }
     if nonlinearity not in nonlinearity_mapping:
         raise Exception('unsupported nonlinearity')
-    return nonlinearity_mapping[nonlinearity](tf.matmul(input, w) + b)
+    return nonlinearity_mapping[nonlinearity](tf.matmul(input, w) + b), vars
 
