@@ -3,7 +3,7 @@ import numpy as np
 
 def log_normal_pdf(x, mu, diag_sigmas):
     D = mu.get_shape()[1].value
-    exp_part = -0.5 * tf.reduce_sum(tf.mul(tf.mul((x - mu), (1.0/(tf.pow(diag_sigmas,2)))), (x - mu)), reduction_indices=1)
+    exp_part = -0.5 * tf.reduce_sum((x - mu) * (1.0/(tf.pow(diag_sigmas,2))) * (x - mu), reduction_indices=1)
     return (-D / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(diag_sigmas), reduction_indices=1) + exp_part
 
 def log_bernoulli_pmf(x, p1):
@@ -16,7 +16,6 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     # encoding layers
     W1 = vars[p+'W1'] = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))
     b1 = vars[p+'b1'] = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
-
     h1 = tf.nn.relu(tf.add(tf.matmul(input, W1), b1))
     W2_mu = vars[p+'W2_mu'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
     b2_mu = vars[p+'b2_mu'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
