@@ -7,7 +7,7 @@ def log_normal_pdf(x, mu, diag_sigmas):
     return (-D / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(diag_sigmas), reduction_indices=1) + exp_part
 
 def log_bernoulli_pmf(x, p1):
-    return tf.log(p1 * tf.to_float(x == 1) + (1 - p1) * tf.to_float(x == 0))
+    return tf.log(p1 * x + (1 - p1) * (1 - x))
 
 def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     p = prefix
