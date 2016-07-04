@@ -4,7 +4,7 @@ import numpy as np
 def log_normal_pdf(x, mu, diag_sigmas):
     D = mu.get_shape()[1].value
     exp_part = -0.5 * tf.reduce_sum((x - mu) * (1.0/(tf.pow(diag_sigmas,2))) * (x - mu), reduction_indices=1)
-    return (-D / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(diag_sigmas + 0.1), reduction_indices=1) + exp_part
+    return (-D / 2)*tf.log(2*np.pi) - 0.5*tf.reduce_sum(2*tf.log(diag_sigmas + 10**-10), reduction_indices=1) + exp_part
 
 def log_bernoulli_pmf(x, p1):
     return tf.log(p1 * tf.float32(x == 1) + (1 - p1) * tf.float32(x == 0))
@@ -23,7 +23,7 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     b2_sigma = vars[p+'b2_sigma'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
     if rvType == 'gaussian':
         q_mu = tf.add(tf.matmul(h1, W2_mu), b2_mu)
-        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 10**-5
+        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 10**-10
         return [q_mu, q_sigma], vars
     elif rvType == 'bernoulli':
         q_p1 = tf.sigmoid(tf.add(tf.matmul(h1, W2_mu), b2_mu))
