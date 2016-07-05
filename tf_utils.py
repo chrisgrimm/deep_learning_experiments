@@ -27,10 +27,11 @@ def connected_layers(input, out_dims, nonlinearities, prefix=''):
 def connected_layer(input, out_dim, nonlinearity, prefix=''):
     in_dim = input.get_shape()[1].value
     vars = dict()
-    w = vars[prefix+'w'] = weight_variable([in_dim, out_dim])
     if out_dim == 3:
+        w = vars[prefix+'w'] = tf.Variable(tf.constant(0.001, tf.float32, shape=[in_dim, out_dim]))
         b = vars[prefix+'b'] = tf.Variable(initial_value=np.array([1, 0, 0], dtype=np.float32))
     else:
+        w = vars[prefix+'w'] = weight_variable([in_dim, out_dim])
         b = vars[prefix+'b'] = bias_variable([out_dim])
     nonlinearity_mapping = {
         'relu': tf.nn.relu,
