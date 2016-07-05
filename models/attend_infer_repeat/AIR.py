@@ -3,6 +3,8 @@ import numpy as np
 from models.spatial_transformer_network.SpatialTransformerNetwork import SpatialTransformerNetwork as STN
 from models.variational_autoencoder.VariationalAutoencoder import VAE, VAE_realize, log_bernoulli_pmf, log_normal_pdf
 from tf_utils import *
+from transformer import transformer
+import matplotlib.pyplot as plt
 
 class AIR(object):
 
@@ -35,6 +37,9 @@ class AIR(object):
         # step through the lstm.
         for iter in range(self.N):
             output, state = lstm(x, state, scope=str(iter))
+            #with tf.variable_scope(str(iter)) as vs:
+            #    lstm_variables = dict([(v.name, v) for v in tf.all_variables() if v.name.startswith(vs.name)])
+            #    self.vars.update(vars)
             # ENCODER
             # set up z_where params
             z_where_params, vars = VAE(output, 100, 3, 'gaussian', prefix='z_where_%s_' % iter)
@@ -52,10 +57,11 @@ class AIR(object):
             # set up z_what params
             where_flat, vars = connected_layers(z_where, [100, 3], ['tanh', 'tanh'], prefix='localizer_%s_' % iter)
             self.vars.update(vars)
-            where = self.extract_where(where_flat)
+            where = tf.reshape(self.extract_where(where_flat), [-1, 6])
             # use spatially transformed where param to make z_what
-            stn = STN(tf.reshape(x, [-1, ih, iw]), (28, 28))
-            x_att = stn.transform(where)
+            #stn = STN(tf.reshape(x, [-1, ih, iw]), (28, 28))
+            #x_att = stn.transform(where)
+            x_att = tf.reshape(transformer(tf.reshape(x, [-1, ih, iw, 1]), where, (28, 28)), [-1, 28, 28])
             x_att_flat = tf.reshape(x_att, [-1, 28*28])
             z_what_params, vars = VAE(x_att_flat, 500, 20, 'gaussian', prefix='z_what_%s_' % iter)
             self.vars.update(vars)
@@ -71,7 +77,7 @@ class AIR(object):
                        log_normal_pdf(z_what, tf.zeros_like(z_what_params[0]), tf.ones_like(z_what_params[1]))
             # DECODER
             # decode z_what into image
-            y_att_flat_params, vars = VAE(z_what, 500, 28*28, 'gaussian', prefix='y_att_%s_' % iter)
+            y_att_flat_params, vars = VAE(z_what, 500, 28*28, 'bernoulli', prefix='y_att_%s_' % iter)
             y_att = tf.reshape(y_att_flat_params[0], [-1, 28, 28])
             z_inv_where_params, vars = VAE(z_where, 100, 3, 'gaussian', prefix='z_inv_where_%s_' % iter)
             self.vars.update(vars)
@@ -80,18 +86,23 @@ class AIR(object):
             z_inv_where = VAE_realize(z_inv_where_params, z_inv_where_random_step, 'gaussian')
             inv_where, vars = connected_layers(z_inv_where, [100, 3], ['tanh', 'tanh'], prefix='inv_localizer_%s_' % iter)
             self.vars.update(vars)
-            inv_where_loc = self.extract_where(inv_where)
-            inv_stn = STN(y_att, (ih, iw))
-            y_i = inv_stn.transform(inv_where_loc)
+            inv_where_loc = tf.reshape(self.extract_where(inv_where), [-1, 6])
+            #inv_stn = STN(y_att, (ih, iw))
+            #y_i = inv_stn.transform(inv_where_loc)
+            y_i = tf.reshape(transformer(tf.reshape(y_att, [-1, 28, 28, 1]), inv_where_loc, (ih, iw)), [-1, 40, 40])
             pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, ih, iw]))
             y_i_masked = y_i * pres_mask
             self.output += tf.reshape(y_i_masked, [-1, ih * iw])
             # update the p_x_given_z node
             # CHECK THIS LINE: UNCLEAR WHAT TO DO TO P(X|Z) WHEN SHIFT FROM Z_INV_WHERE TO INV_WHERE
-            cum_p_x_given_z += log_normal_pdf(x_att_flat, y_att_flat_params[0], y_att_flat_params[1])
-        p = cum_p_z + cum_p_x_given_z
-        q = cum_q_z_what + cum_q_z_where + cum_q_z_pres
-        self.loss = tf.reduce_mean(-(p - q), reduction_indices=0)
+            #cum_p_x_given_z += log_normal_pdf(x_att_flat, y_att_flat_params[0], y_att_flat_params[1])
+        self.p = p = cum_p_z + cum_p_x_given_z
+        self.q = q = cum_q_z_what + cum_q_z_where + cum_q_z_pres
+        #self.cum_q_z_what = cum_q_z_what
+        #self.cum_q_z_where = cum_q_z_where
+        self.cum_q_z_pres = cum_q_z_pres
+        self.loss = tf.reduce_mean(tf.reduce_mean(tf.pow(self.output - self.input, 2), reduction_indices=1), reduction_indices=0)
+        #self.loss = tf.reduce_mean(-(p - q), reduction_indices=0)
         self.train = tf.train.AdamOptimizer().minimize(self.loss)
 
     def add_randomness(self, feed_dict, batch_size):
@@ -101,11 +112,16 @@ class AIR(object):
             feed_dict[self.z_pres_random[i]]  = np.random.normal(size=(batch_size, 1))
             feed_dict[self.inv_where_random[i]] = np.random.normal(size=(batch_size, 3))
 
-    def train_batch(self, batch, batch_size):
+    def train_batch(self, batch, batch_size, i):
         feed_dict = {}
         self.add_randomness(feed_dict, batch_size)
         feed_dict[self.input] = batch
-        [_, loss] = self.sess.run([self.train, self.loss], feed_dict)
+        [_, loss, output] = self.sess.run([self.train, self.loss, self.output], feed_dict)
+        if i % 100 == 0:
+            f, [ax1, ax2] = plt.subplots(1, 2)
+            ax1.imshow(np.reshape(batch[0], (40, 40)))
+            ax2.imshow(np.reshape(output[0], (40, 40)))
+            f.savefig('./fig.png')
         return loss
 
     def reconstruct(self, image, batch_size):

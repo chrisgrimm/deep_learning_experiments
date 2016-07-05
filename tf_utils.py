@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 def weight_variable(shape):
     #initial = tf.truncated_normal(shape, stddev=0.01)
@@ -27,7 +28,10 @@ def connected_layer(input, out_dim, nonlinearity, prefix=''):
     in_dim = input.get_shape()[1].value
     vars = dict()
     w = vars[prefix+'w'] = weight_variable([in_dim, out_dim])
-    b = vars[prefix+'b'] = bias_variable([out_dim])
+    if out_dim == 3:
+        b = vars[prefix+'b'] = tf.Variable(initial_value=np.array([1, 0, 0], dtype=np.float32))
+    else:
+        b = vars[prefix+'b'] = bias_variable([out_dim])
     nonlinearity_mapping = {
         'relu': tf.nn.relu,
         'tanh': tf.nn.tanh,

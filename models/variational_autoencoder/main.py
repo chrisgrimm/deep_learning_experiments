@@ -55,6 +55,5 @@ else:
     #ax1.imshow(np.reshape(res, [28, 28]))
     ax2.imshow(np.reshape(res_mu, [28, 28]))
     ax3.imshow(np.reshape(data[0], [28, 28]))
-
     f.show()
     raw_input()
