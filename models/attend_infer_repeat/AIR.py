@@ -22,6 +22,7 @@ class AIR(object):
         self.z_where_random = []
         self.z_pres_random = []
         self.inv_where_random = []
+        self.slot_images = []
         self.vars = dict()
         self.setup_network()
 
@@ -82,6 +83,8 @@ class AIR(object):
             # decode z_what into image
             y_att_flat_params, vars = VAE(z_what, 500, 28*28, 'bernoulli', prefix='y_att_%s_' % iter)
             y_att = tf.reshape(y_att_flat_params[0], [-1, 28, 28])
+            pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, 28, 28]))
+            self.slot_images.append(y_att * pres_mask)
             z_inv_where_params, vars = VAE(z_where, 100, 3, 'gaussian', prefix='z_inv_where_%s_' % iter)
             self.vars.update(vars)
             z_inv_where_random_step = tf.placeholder(tf.float32, [self.batch_size, 3])
@@ -119,11 +122,14 @@ class AIR(object):
         feed_dict = {}
         self.add_randomness(feed_dict, batch_size)
         feed_dict[self.input] = batch
-        [_, loss, output] = self.sess.run([self.train, self.loss, self.output], feed_dict)
+        [_, loss, output, s1, s2, s3] = self.sess.run([self.train, self.loss, self.output, self.slot_images[0], self.slot_images[1], self.slot_images[2]], feed_dict)
         if i % 100 == 0:
-            f, [ax1, ax2] = plt.subplots(1, 2)
+            f, [[ax1, ax2, _], [slot1, slot2, slot3]] = plt.subplots(2, 3)
             ax1.imshow(np.reshape(batch[0], (40, 40)))
             ax2.imshow(np.reshape(output[0], (40, 40)))
+            slot1.imshow(np.reshape(s1[0], (28, 28)))
+            slot2.imshow(np.reshape(s2[0], (28, 28)))
+            slot3.imshow(np.reshape(s3[0], (28, 28)))
             f.savefig('./fig.png')
         return loss
 
