@@ -92,7 +92,9 @@ class AIR(object):
             #z_inv_where = VAE_realize(z_inv_where_params, z_inv_where_random_step, 'gaussian')
             #inv_where, vars = connected_layers(z_inv_where, [100, 3], ['tanh', 'tanh'], prefix='inv_localizer_%s_' % iter)
             #self.vars.update(vars)
-            inv_where = tf.concat(1, [1.0/(tf.reshape(where_flat[:, 0], [-1, 1]) + 10**-5), -tf.reshape(where_flat[:, 1], [-1, 1]), -tf.reshape(where_flat[:, 2], [-1,1])])
+            inv_where = tf.concat(1, [1.0/(tf.reshape(where_flat[:, 0], [-1, 1]) + 10**-5),
+                                      -tf.reshape(where_flat[:, 1] * 1.0/(where_flat[:, 0] + 10**-5), [-1,1]),
+                                      -tf.reshape(where_flat[:, 2] * 1.0/(where_flat[:, 0] + 10**-5), [-1,1])])
             inv_where_loc = tf.reshape(self.extract_where(inv_where), [-1, 6])
             #inv_stn = STN(y_att, (ih, iw))
             #y_i = inv_stn.transform(inv_where_loc)
