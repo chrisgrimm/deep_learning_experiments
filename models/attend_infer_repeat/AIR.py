@@ -123,7 +123,7 @@ class AIR(object):
         self.add_randomness(feed_dict, batch_size)
         feed_dict[self.input] = batch
         [_, loss, output, s1, s2, s3] = self.sess.run([self.train, self.loss, self.output, self.slot_images[0], self.slot_images[1], self.slot_images[2]], feed_dict)
-        if i % 1000 == 0:
+        if i % 100 == 0:
             f, [[ax1, ax2, _], [slot1, slot2, slot3]] = plt.subplots(2, 3)
             ax1.imshow(np.reshape(batch[0], (40, 40)))
             ax2.imshow(np.reshape(output[0], (40, 40)))
