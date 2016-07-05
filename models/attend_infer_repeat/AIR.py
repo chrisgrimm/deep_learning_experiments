@@ -4,7 +4,10 @@ from models.spatial_transformer_network.SpatialTransformerNetwork import Spatial
 from models.variational_autoencoder.VariationalAutoencoder import VAE, VAE_realize, log_bernoulli_pmf, log_normal_pdf
 from tf_utils import *
 from transformer import transformer
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 
 class AIR(object):
 
