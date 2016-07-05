@@ -81,6 +81,7 @@ class AIR(object):
             #           log_normal_pdf(z_what, tf.zeros_like(z_what_params[0]), tf.ones_like(z_what_params[1]))
             # DECODER
             # decode z_what into image
+            print 'moop'
             y_att_flat_params, vars = VAE(z_what, 500, 28*28, 'bernoulli', prefix='y_att_%s_' % iter)
             y_att = tf.reshape(y_att_flat_params[0], [-1, 28, 28])
             #pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, 28, 28]))
