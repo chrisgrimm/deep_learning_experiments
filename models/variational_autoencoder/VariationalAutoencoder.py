@@ -9,39 +9,32 @@ def log_normal_pdf(x, mu, diag_sigmas):
 def log_bernoulli_pmf(x, p1):
     return tf.reduce_sum(tf.log(p1 * tf.to_float(x) + (1 - p1) * tf.to_float(1 - x) + 10**-5), reduction_indices=1)
 
-def VAE(input, hiddenSize, codeSize, rvType, vars=None, prefix=''):
-    p = prefix
-    if vars is None:
-        vars = dict()
-    input_dim = input.get_shape()[1].value
-    # encoding layers
-    W1 = vars[p+'W1'] = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))
-    b1 = vars[p+'b1'] = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
-    # also sigmoid seems to work better than relu. gradient was exploding before.
-    h1 = tf.nn.sigmoid(tf.add(tf.matmul(input, W1), b1))
-    W2_mu = vars[p+'W2_mu'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
-    b2_mu = vars[p+'b2_mu'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
-    W2_sigma = vars[p+'W2_sigma'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
-    b2_sigma = vars[p+'b2_sigma'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
-    if rvType == 'gaussian':
-        q_mu = tf.add(tf.matmul(h1, W2_mu), b2_mu)
-        # no idea why this value works as well as it does. should probably change it later. (0.25)
-        q_sigma = tf.abs(tf.add(tf.matmul(h1, W2_sigma), b2_sigma)) + 0.1
-        return [q_mu, q_sigma], vars
-    elif rvType == 'bernoulli':
-        q_p1 = tf.sigmoid(tf.add(tf.matmul(h1, W2_mu), b2_mu))
-        return [q_p1], vars
-    else:
-        raise Exception('Unrecognized rvType.')
+def createVAEweights(input_dim, hiddenSize, codeSize, p):
+    weights = {p + "W1" : tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01)),
+               p + 'b1' : tf.Variable(tf.constant(0.1, shape=[hiddenSize])),
+               p + 'W2_mu' : tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01)),
+               p + 'b2_mu' : tf.Variable(tf.constant(0.1, shape=[codeSize])),
+               p + 'W2_sigma' : tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01)),
+               p + 'b2_sigma' : tf.Variable(tf.constant(0.1, shape=[codeSize]))}
+    return weights
 
-def VAE_realize(params, random_placeholder, rvType):
+
+def hookVAE(input, weights, p):
+    # also sigmoid seems to work better than relu. gradient was exploding before.
+    h1 = tf.nn.sigmoid(tf.add(tf.matmul(input, weights[p + "W1"]), weights[p + "b1"]))
+    q_mu = tf.add(tf.matmul(h1, weights[p + "W2_mu"]), weights[p + "b2_mu"])
+    # no idea why this value works as well as it does. should probably change it later. (0.25)
+    q_sigma = tf.abs(tf.add(tf.matmul(h1, weights[p + "W2_sigma"]), weights[p + "b2_sigma"])) + 0.1
+    return [q_mu, q_sigma], h1
+
+def VAE_realize(params, rvType):
+    random_placeholder = tf.random_normal(tf.shape(params[0]))
     if rvType == 'gaussian':
         return params[0] + tf.mul(params[1], random_placeholder)
     elif rvType == 'bernoulli':
         return tf.to_int32(random_placeholder < params[0])
     else:
         raise Exception('Unrecognized rvType')
-
 
 
 
