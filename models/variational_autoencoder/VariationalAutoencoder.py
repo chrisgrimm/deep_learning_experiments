@@ -9,9 +9,10 @@ def log_normal_pdf(x, mu, diag_sigmas):
 def log_bernoulli_pmf(x, p1):
     return tf.reduce_sum(tf.log(p1 * tf.to_float(x) + (1 - p1) * tf.to_float(1 - x) + 10**-5), reduction_indices=1)
 
-def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
+def VAE(input, hiddenSize, codeSize, rvType, vars=None, prefix=''):
     p = prefix
-    vars = dict()
+    if vars is None:
+        vars = dict()
     input_dim = input.get_shape()[1].value
     # encoding layers
     W1 = vars[p+'W1'] = tf.Variable(tf.random_normal(shape=[input_dim, hiddenSize], stddev=0.01))

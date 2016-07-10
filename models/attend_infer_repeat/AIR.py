@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-from models.spatial_transformer_network.SpatialTransformerNetwork import SpatialTransformerNetwork as STN
 from models.variational_autoencoder.VariationalAutoencoder import VAE, VAE_realize, log_bernoulli_pmf, log_normal_pdf
 from tf_utils import *
 from transformer import transformer
@@ -119,7 +118,7 @@ class AIR(object):
         for i in range(self.N):
             feed_dict[self.z_what_random[i]] = np.random.normal(size=(batch_size, 20))
             feed_dict[self.z_where_random[i]] = np.random.normal(size=(batch_size, 3))
-            feed_dict[self.z_pres_random[i]]  = np.random.normal(size=(batch_size, 1))
+            feed_dict[self.z_pres_random[i]] = np.random.normal(size=(batch_size, 1))
             feed_dict[self.inv_where_random[i]] = np.random.normal(size=(batch_size, 3))
 
     def train_batch(self, batch, batch_size, i):
