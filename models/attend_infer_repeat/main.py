@@ -1,25 +1,54 @@
 import tensorflow as tf
 import numpy as np
-from AIR import AIR
+from AIRAugmented import AIR
 from data_generation import get_batch
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets("MNIST_data")
+import cv2
 
 sess = tf.Session()
 
 batch_size = 100
 
-x = tf.placeholder(tf.float32, [None, 40, 40])
-x_flat = tf.reshape(x, [-1, 40*40])
-air = AIR(sess, x_flat, 40, 40, 3, 2, batch_size)
+
+air = AIR(sess, 40, 40, 30, 2, batch_size)
 sess.run(tf.initialize_all_variables())
-saver = tf.train.Saver(air.vars)
+#air.restore()
 
 num_batches = 10000000
-for i in range(0, num_batches):
+
+def placeDigitInPosition(digit, image, x, y):
+    start_x, end_x = x-5, x+5
+    start_y, end_y = y-5, y+5
+    image = image.copy()
+    image[start_x:end_x, start_y:end_y] = digit
+    return image
+
+
+def walkingDigit(digit, step):
+    canvas = np.zeros((40, 40))
+    digit = cv2.resize(digit, (10, 10))
+    px, py = 20, 20
+    while True:
+        px = np.clip(px + np.random.randint(-step, step+1), 5, 35)
+        py = np.clip(py + np.random.randint(-step, step+1), 5, 35)
+        yield placeDigitInPosition(digit, canvas, px, py)
+
+
+def create_batch_generator(batch_size):
+    return [walkingDigit(mnist.train.images[i,:].reshape((28, 28)), 5) for i in range(batch_size)]
+
+def sample_batch(generator):
+    return [next(gener).flatten() for gener in generator]
+
+generator = create_batch_generator(100)
+
+for i in range(1, num_batches):
     print i
-    batch = get_batch(batch_size)[0]
-    loss = air.train_batch(batch, batch_size, i)
+    batch = sample_batch(generator)
+    loss = air.train_batch(batch, i)
     print loss
-    if i % 1000 == 0:
-        print "Saving"
+    if i % 1000 == 0 and i != 0 :
         air.save()
-        print "saved"
+    if i % 100 == 0:
+        air.visualize_result(batch, str(i))

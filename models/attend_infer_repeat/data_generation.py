@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -33,10 +34,15 @@ def get_batch(batch_size):
     labels2 = mnist.train.labels[idx2]
     images = []
     labels = []
+    zeros_image = np.zeros((28, 28), dtype=np.float32)
     for (image1, image2, label1, label2) in zip(images1, images2, labels1, labels2):
-        images.append(np.reshape(combineTwo(image1, image2), [1600]))
+        if random.randint(0, 1) == 0:
+            images.append(np.reshape(combineTwo(image1, image2), [1600]))
+        else:
+            images.append(np.reshape(combineTwo(image1, zeros_image), [1600]))
         label = np.zeros(10)
         label[label1] = 1
         label[label2] = 1
         labels.append(label)
+        images[-1] = images[-1] > 0.5
     return (images, labels)
