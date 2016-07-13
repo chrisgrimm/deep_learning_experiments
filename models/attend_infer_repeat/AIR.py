@@ -3,6 +3,7 @@ import numpy as np
 from SpatialTransformerNetwork import SpatialTransformerNetwork as STN, hook_localizer, create_localizer_weights
 from VariationalAutoencoder import log_normal_pdf, create_vae_weights, hook_vae_and_sample, hook_vae, log_bernoulli_pmf
 #from tf_utils import *
+
 from transformer import transformer
 import matplotlib
 matplotlib.use('Agg')
@@ -81,6 +82,7 @@ class AIR(object):
             q_z_given_x += log_z_given_x * cum_z_pres
             p_z_where += log_z * cum_z_pres
             where_flat, hidden_layer = hook_localizer(z_where, localizer_weights)
+
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])
 
             x_att = tf.reshape(transformer(tf.reshape(self.input, [-1, ih, iw, 1]), where, (28, 28)), [-1, 28, 28])
