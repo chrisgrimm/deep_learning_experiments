@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from objectDetector import AIR
+from AIRAugmented import AIR
 from data_generation import get_batch
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data")
@@ -71,10 +72,20 @@ for i in range(1, num_batches):
     print i
     batch = take_sequence(rom_path, 1, batch_size)
     np.random.shuffle(batch)
+
+air = AIR(sess, 40, 40, 30, 2, batch_size)
+sess.run(tf.initialize_all_variables())
+#air.restore()
+
+num_batches = 10000000
+
+
+for i in range(1, num_batches):
+    print i
+    batch = sample_batch(generator)
     loss = air.train_batch(batch, i)
     print loss
     if i % 1000 == 0 and i != 0 :
         air.save()
-    if i % 1000 == 0:
+    if i % 100 == 0:
         air.visualize_result(batch, str(i))
-    air.visualize_result(batch, str(i))

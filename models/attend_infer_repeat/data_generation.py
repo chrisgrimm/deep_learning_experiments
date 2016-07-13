@@ -14,8 +14,8 @@ def combineTwo(image1, image2):
     x2 = np.random.randint(14, 20)
     y1 = np.random.randint(0, 15)
     y2 = np.random.randint(0, 15)
-    s1 = 0.3*np.random.rand() + 0.3
-    s2 = 0.3*np.random.rand() + 0.3
+    s1 = 0.3*np.random.random() + 0.3
+    s2 = 0.3*np.random.random() + 0.3
     move = lambda x, y: np.float32(np.mat([[1.0, 0, x], [0, 1.0, y]]))
     img1 = cv2.resize(np.reshape(image1, (28,28)),(final_size, final_size), interpolation = cv2.INTER_CUBIC)
     img1 = cv2.warpAffine(img1, np.float32([[s1, 0, 0], [0, s1, 0]]), (final_size, final_size))
@@ -44,7 +44,5 @@ def get_batch(batch_size):
         label[label1] = 1
         label[label2] = 1
         labels.append(label)
-        leak = 0
-        images[-1][images[-1] >= 0.5] = 1 - leak
-        images[-1][images[-1] < 0.5] = leak
-    return images
+        images[-1] = images[-1] > 0.5
+    return (images, labels)

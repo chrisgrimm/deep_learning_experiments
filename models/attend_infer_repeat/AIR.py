@@ -3,6 +3,10 @@ import numpy as np
 from SpatialTransformerNetwork import SpatialTransformerNetwork as STN, hook_localizer, create_localizer_weights
 from VariationalAutoencoder import log_normal_pdf, create_vae_weights, hook_vae_and_sample, hook_vae, log_bernoulli_pmf
 #from tf_utils import *
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0a820b66657179d1cb19084872b2d1d7bffc409f
 from transformer import transformer
 import matplotlib
 matplotlib.use('Agg')
@@ -70,6 +74,7 @@ class AIR(object):
         self.slot_images = []
         for iter in range(self.N):
             output, state = lstm(self.input, state, scope=str(iter))
+<<<<<<< HEAD
 
             z_pres, log_z_given_x, log_z = hook_vae_and_sample(output, z_pres_weights, "bernoulli")
             z_pres = 1
@@ -93,6 +98,32 @@ class AIR(object):
             y_att_mean = hook_vae(z_what, z_what_decoder_weights, "bernoulli")
             self.slot_images.append(y_att_mean)
 
+=======
+
+            z_pres, log_z_given_x, log_z = hook_vae_and_sample(output, z_pres_weights, "bernoulli")
+            z_pres = 1
+            q_z_given_x += log_z_given_x * cum_z_pres
+            p_z_pres += log_z * cum_z_pres
+            cum_z_pres *= z_pres
+
+            z_where, log_z_given_x, log_z = hook_vae_and_sample(output, z_where_weights, "gaussian")
+            q_z_given_x += log_z_given_x * cum_z_pres
+            p_z_where += log_z * cum_z_pres
+            where_flat, hidden_layer = hook_localizer(z_where, localizer_weights)
+
+            where = tf.reshape(self.extract_where(where_flat), [-1, 6])
+
+            x_att = tf.reshape(transformer(tf.reshape(self.input, [-1, ih, iw, 1]), where, (28, 28)), [-1, 28, 28])
+            x_att_flat = tf.reshape(x_att, [-1, 28*28])
+
+            z_what, log_z_given_x, log_z = hook_vae_and_sample(x_att_flat, z_what_encoder_weights, 'gaussian')
+            q_z_given_x += log_z_given_x * cum_z_pres
+            p_z_what += log_z * cum_z_pres
+
+            y_att_mean = hook_vae(z_what, z_what_decoder_weights, "bernoulli")
+            self.slot_images.append(y_att_mean)
+
+>>>>>>> 0a820b66657179d1cb19084872b2d1d7bffc409f
             inv_where = tf.concat(1, [1.0/(tf.reshape(where_flat[:, 0], [-1, 1]) + 10**-5),
                                       -tf.reshape(where_flat[:, 1] * 1.0/(where_flat[:, 0] + 10**-5), [-1,1]),
                                       -tf.reshape(where_flat[:, 2] * 1.0/(where_flat[:, 0] + 10**-5), [-1,1])])
