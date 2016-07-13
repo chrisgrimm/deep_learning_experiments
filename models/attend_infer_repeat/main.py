@@ -1,15 +1,77 @@
 import tensorflow as tf
 import numpy as np
+from objectDetector import AIR
 from AIRAugmented import AIR
 from data_generation import get_batch
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data")
 import cv2
+from ale_python_interface import ALEInterface
+import matplotlib.pyplot as plt
+import sys, time, numpy as np
+import random
+import pickle
+import os
+import cv2
+
+ale = ALEInterface()
+ale.setInt('random_seed', 123)
+
+def get_screen_array():
+    w, h = ale.getScreenDims()
+    data = np.zeros(w * h * 3, dtype=np.uint8)
+    ale.getScreen(data)
+    image = data.reshape((h, w, 3))
+    #image = cv2.resize(image, (84, 110))
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = gray / 255.0
+    gray = gray[10:67, :55]
+    return gray
+
+def choose_action():
+    return random.choice(ale.getMinimalActionSet())
+
+
+def take_sequence(rom_path, step, n):
+    ale.loadROM(rom_path)
+    w, h = ale.getScreenDims()
+    screenshots = np.zeros((n,57*55))
+    prev_shot = np.zeros((57, 55))
+    j = 0
+    for i in range(step*n):
+        if ale.game_over():
+            ale.loadROM(rom_path)
+        ale.act(choose_action())
+        if i % step == 0:
+            screen_shot = get_screen_array()
+            temp = 1 * (np.abs(screen_shot - prev_shot) > 0)
+            prev_shot = screen_shot
+            cv2.imshow("SDfs", temp)
+            cv2.waitKey(50)
+            print np.median(temp)
+            screenshots[j, :] = temp.flatten()
+            j += 1
+    return screenshots
+
+rom_path = './supported/pong.bin'
 
 sess = tf.Session()
 
-batch_size = 100
+batch_size = 500
 
+
+air = AIR(sess, 57, 55, 30, 3, batch_size)
+sess.run(tf.initialize_all_variables())
+#print "RESTORING!!!"
+#air.restore()
+#print "RESTORed!!!"
+
+num_batches = 10000000
+
+for i in range(1, num_batches):
+    print i
+    batch = take_sequence(rom_path, 1, batch_size)
+    np.random.shuffle(batch)
 
 air = AIR(sess, 40, 40, 30, 2, batch_size)
 sess.run(tf.initialize_all_variables())
@@ -17,35 +79,6 @@ sess.run(tf.initialize_all_variables())
 
 num_batches = 10000000
 
-def placeDigitInPosition(digit, image, x, y):
-    start_x, end_x = x-5, x+5
-    start_y, end_y = y-5, y+5
-    image = image.copy()
-    image[start_x:end_x, start_y:end_y] = digit
-    return image
-
-
-def walkingDigit(digit, step, num_digits):
-    canvas = np.zeros((40, 40))
-    digit = cv2.resize(digit, (10, 10))
-    px = [20 for x in range(num_digits)]
-    py = [20 for x in range(num_digits)]
-    while True:
-        res = canvas
-        for i in range(num_digits):
-            px[i] = np.clip(px[i] + np.random.randint(-step, step+1), 5, 35)
-            py[i] = np.clip(py[i] + np.random.randint(-step, step+1), 5, 35)
-            res = placeDigitInPosition(digit, res, px[i], py[i])
-        yield res
-
-
-def create_batch_generator(batch_size, num_digits):
-    return [walkingDigit(mnist.train.images[i,:].reshape((28, 28)), 5, 2) for i in range(batch_size)]
-
-def sample_batch(generator):
-    return [next(gener).flatten() for gener in generator]
-
-generator = create_batch_generator(100)
 
 for i in range(1, num_batches):
     print i

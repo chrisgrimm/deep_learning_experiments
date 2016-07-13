@@ -23,7 +23,7 @@ def create_vae_weights(input_dim, hidden_size, code_size, p):
     weights = {p + "W1": tf.Variable(tf.random_normal(shape=[input_dim, hidden_size], stddev=0.01)),
                p + 'b1': tf.Variable(tf.constant(0.1, shape=[hidden_size])),
                p + 'W2_mu': tf.Variable(tf.random_normal(shape=[hidden_size, code_size], stddev=0.01)),
-               p + 'b2_mu': tf.Variable(tf.constant(0.1, shape=[code_size])),
+               p + 'b2_mu': tf.Variable(tf.constant(-1.1, shape=[code_size])),
                p + 'W2_sigma': tf.Variable(tf.random_normal(shape=[hidden_size, code_size], stddev=0.01)),
                p + 'b2_sigma': tf.Variable(tf.constant(1.0, shape=[code_size])),
                "name": p}
@@ -66,7 +66,7 @@ def hook_vae(x, weights, rv_type):
         return q_mu, q_sigma
     elif rv_type == "final_gaussian":
         q_mu = tf.nn.sigmoid(tf.add(tf.matmul(h1, weights[p + "W2_mu"]), weights[p + "b2_mu"]))
-        q_sigma = tf.nn.softplus(tf.add(tf.matmul(h1, weights[p + "W2_sigma"]), weights[p + "b2_sigma"]))
+        q_sigma = tf.nn.tanh(tf.add(tf.matmul(h1, weights[p + "W2_sigma"]), weights[p + "b2_sigma"]))
         return q_mu, q_sigma
     elif rv_type == 'bernoulli':
         q_mu = tf.nn.sigmoid(tf.add(tf.matmul(h1, weights[p + "W2_mu"]), weights[p + "b2_mu"]))

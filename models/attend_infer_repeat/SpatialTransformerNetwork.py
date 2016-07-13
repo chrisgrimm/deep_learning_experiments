@@ -23,7 +23,7 @@ def create_localizer_weights(input_dims, hidden_dims, output_dims, p):
     weights = {p + "W1": tf.Variable(tf.constant(0.001, shape=(input_dims, hidden_dims))),
                p + "b1": tf.Variable(tf.constant(0.0, shape=(1, hidden_dims))),
                p + "W2": tf.Variable(tf.constant(0.001, shape=(hidden_dims, output_dims))),
-               p + "b2": tf.Variable(initial_value=[1.0, 0, 0]),
+               p + "b2": tf.Variable(initial_value=[10.0, 0.0, 0.0]),
                "name": p}
     return weights
 
