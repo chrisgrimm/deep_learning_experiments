@@ -25,18 +25,22 @@ def placeDigitInPosition(digit, image, x, y):
     return image
 
 
-def walkingDigit(digit, step):
+def walkingDigit(digit, step, num_digits):
     canvas = np.zeros((40, 40))
     digit = cv2.resize(digit, (10, 10))
-    px, py = 20, 20
+    px = [20 for x in range(num_digits)]
+    py = [20 for x in range(num_digits)]
     while True:
-        px = np.clip(px + np.random.randint(-step, step+1), 5, 35)
-        py = np.clip(py + np.random.randint(-step, step+1), 5, 35)
-        yield placeDigitInPosition(digit, canvas, px, py)
+        res = canvas
+        for i in range(num_digits):
+            px[i] = np.clip(px[i] + np.random.randint(-step, step+1), 5, 35)
+            py[i] = np.clip(py[i] + np.random.randint(-step, step+1), 5, 35)
+            res = placeDigitInPosition(digit, res, px[i], py[i])
+        yield res
 
 
-def create_batch_generator(batch_size):
-    return [walkingDigit(mnist.train.images[i,:].reshape((28, 28)), 5) for i in range(batch_size)]
+def create_batch_generator(batch_size, num_digits):
+    return [walkingDigit(mnist.train.images[i,:].reshape((28, 28)), 5, 2) for i in range(batch_size)]
 
 def sample_batch(generator):
     return [next(gener).flatten() for gener in generator]
