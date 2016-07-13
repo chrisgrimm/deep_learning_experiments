@@ -9,7 +9,7 @@ batch_size = 100
 
 x = tf.placeholder(tf.float32, [None, 40, 40])
 x_flat = tf.reshape(x, [-1, 40*40])
-air = AIR(sess, x_flat, 40, 40, 3, 2, batch_size)
+air = AIR(sess, x_flat, 40, 40, 256, 2, batch_size)
 sess.run(tf.initialize_all_variables())
 saver = tf.train.Saver(air.vars)
 

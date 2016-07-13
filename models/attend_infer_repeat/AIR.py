@@ -38,22 +38,21 @@ class AIR(object):
         prev_pres = tf.ones([self.batch_size, 1])
         cum_q_z_pres = cum_q_z_where = cum_q_z_what = cum_p_x_given_z = cum_p_z = tf.zeros([self.batch_size])
         self.output = tf.zeros_like(x)
+        self.z_preses_sum = tf.zeros_like(prev_pres)
         # step through the lstm.
         for iter in range(self.N):
             output, state = lstm(x, state, scope=str(iter))
-            #with tf.variable_scope(str(iter)) as vs:
-            #    lstm_variables = dict([(v.name, v) for v in tf.all_variables() if v.name.startswith(vs.name)])
-            #    self.vars.update(vars)
-            # ENCODER
-            # set up z_where params
             z_where_params, vars = VAE(output, 100, 3, 'gaussian', prefix='z_where_%s_' % iter)
             z_where_random_step = tf.placeholder(tf.float32, [self.batch_size, 3])
             self.z_where_random.append(z_where_random_step)
             self.vars.update(vars)
             z_where = VAE_realize(z_where_params, z_where_random_step, 'gaussian')
             # set up z_pres params multiply by old previous value... (if prev pres is zero for an image, it kills the bernoulli distr)
-            #z_pres_params, vars = VAE(output, 100, 1, 'bernoulli', prefix='z_pres_%s_' % iter)
-            #z_pres_params = z_pres_params[0] * tf.to_float(prev_pres)
+            z_pres, vars = connected_layers(output, [10, 1], ['relu', 'sigmoid'], prefix='z_pres_%s' % iter)
+            z_pres = z_pres * prev_pres
+            self.z_preses_sum += z_pres
+            self.vars.update(vars)
+            prev_pres = z_pres
             z_pres_random_step = tf.placeholder(tf.float32, [self.batch_size, 1])
             self.z_pres_random.append(z_pres_random_step)
             #self.vars.update(vars)
@@ -68,6 +67,7 @@ class AIR(object):
             x_att = tf.reshape(transformer(tf.reshape(x, [-1, ih, iw, 1]), where, (28, 28)), [-1, 28, 28])
             x_att_flat = tf.reshape(x_att, [-1, 28*28])
             z_what_params, vars = VAE(x_att_flat, 500, 20, 'gaussian', prefix='z_what_%s_' % iter)
+            #z_what_params = [z_what_params[0], tf.ones_like(z_what_params[1])]
             self.vars.update(vars)
             z_what_random_step = tf.placeholder(tf.float32, [self.batch_size, 20])
             self.z_what_random.append(z_what_random_step)
@@ -83,9 +83,10 @@ class AIR(object):
             # decode z_what into image
             print 'moop'
             y_att_flat_params, vars = VAE(z_what, 500, 28*28, 'bernoulli', prefix='y_att_%s_' % iter)
-            y_att = tf.reshape(y_att_flat_params[0], [-1, 28, 28])
+            pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, 28, 28]))
+            y_att = tf.reshape(y_att_flat_params[0], [-1, 28, 28]) * pres_mask
             #pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, 28, 28]))
-            self.slot_images.append(y_att)# * pres_mask)
+            self.slot_images.append(y_att)
             #z_inv_where_params, vars = VAE(z_where, 100, 3, 'gaussian', prefix='z_inv_where_%s_' % iter)
             #self.vars.update(vars)
             z_inv_where_random_step = tf.placeholder(tf.float32, [self.batch_size, 3])
@@ -100,8 +101,7 @@ class AIR(object):
             #inv_stn = STN(y_att, (ih, iw))
             #y_i = inv_stn.transform(inv_where_loc)
             y_i = tf.reshape(transformer(tf.reshape(y_att, [-1, 28, 28, 1]), inv_where_loc, (ih, iw)), [-1, 40, 40])
-            #pres_mask = tf.to_float(tf.tile(tf.reshape(z_pres, [-1, 1, 1]), [1, ih, iw]))
-            y_i_masked = y_i# * pres_mask
+            y_i_masked = y_i
             self.output += tf.reshape(y_i_masked, [-1, ih * iw])
             # update the p_x_given_z node
             # CHECK THIS LINE: UNCLEAR WHAT TO DO TO P(X|Z) WHEN SHIFT FROM Z_INV_WHERE TO INV_WHERE
@@ -111,6 +111,7 @@ class AIR(object):
         #self.cum_q_z_what = cum_q_z_what
         #self.cum_q_z_where = cum_q_z_where
         self.cum_q_z_pres = cum_q_z_pres
+        print self.z_preses_sum.get_shape()
         self.loss = tf.reduce_mean(tf.reduce_mean(tf.pow(self.output - self.input, 2), reduction_indices=1), reduction_indices=0)
         #self.loss = tf.reduce_mean(-(p - q), reduction_indices=0)
         self.train = tf.train.AdamOptimizer().minimize(self.loss)
@@ -129,10 +130,10 @@ class AIR(object):
         [_, loss, output, s1, s2] = self.sess.run([self.train, self.loss, self.output, self.slot_images[0], self.slot_images[1]], feed_dict)
         if i % 100 == 0:
             f, [[ax1, ax2, _], [slot1, slot2, slot3]] = plt.subplots(2, 3)
-            ax1.imshow(np.reshape(batch[0], (40, 40)))
-            ax2.imshow(np.reshape(output[0], (40, 40)))
-            slot1.imshow(np.reshape(s1[0], (28, 28)))
-            slot2.imshow(np.reshape(s2[0], (28, 28)))
+            ax1.imshow(np.reshape(batch[0], (40, 40)), cmap='Greys_r')
+            ax2.imshow(np.reshape(output[0], (40, 40)), cmap='Greys_r')
+            slot1.imshow(np.reshape(s1[0], (28, 28)), cmap='Greys_r')
+            slot2.imshow(np.reshape(s2[0], (28, 28)), cmap='Greys_r')
             f.savefig('./fig.png')
         return loss
 

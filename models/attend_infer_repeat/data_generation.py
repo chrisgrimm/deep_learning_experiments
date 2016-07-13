@@ -33,7 +33,10 @@ def get_batch(batch_size):
     labels2 = mnist.train.labels[idx2]
     images = []
     labels = []
+    blank_image = np.zeros((28, 28), dtype=np.float32)
     for (image1, image2, label1, label2) in zip(images1, images2, labels1, labels2):
+        if np.random.random() < 0.5:
+            image2 = blank_image
         images.append(np.reshape(combineTwo(image1, image2), [1600]))
         label = np.zeros(10)
         label[label1] = 1
