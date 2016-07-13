@@ -1,0 +1,4 @@
+*.pyc
+*.meta
+*.data
+*.gz
