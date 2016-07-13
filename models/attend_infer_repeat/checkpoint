@@ -1,0 +1,2 @@
+model_checkpoint_path: "AIRweights.data"
+all_model_checkpoint_paths: "AIRweights.data"
