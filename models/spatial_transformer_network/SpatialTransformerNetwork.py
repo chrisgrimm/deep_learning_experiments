@@ -3,16 +3,17 @@ import numpy as np
 from tf_utils import *
 
 
-def hookLocalizer(input, weights, p):
-    hidden_layer = tf.nn.tanh(tf.matmul(input, weights[p + "W1"]) + weights[p + "b1"])
+def hook_localizer(x, weights, p=""):
+    hidden_layer = tf.nn.tanh(tf.matmul(x, weights[p + "W1"]) + weights[p + "b1"])
     output = tf.nn.tanh(tf.matmul(hidden_layer, weights[p + "W2"]) + weights[p + "b2"])
     return output, hidden_layer
 
-def createLocalizerWeights(input_dims, hidden_dims, output_dims, p):
-    weights = {p + "W1" : tf.Variable(tf.random_normal(shape=(input_dims, hidden_dims))),
-               p + "b1" : tf.Variable(tf.random_normal(shape=(1, hidden_dims))),
-               p + "W2" : tf.Variable(tf.random_normal(shape=(hidden_dims, output_dims))),
-               p + "b2" : tf.Variable(tf.random_normal(shape=(1, output_dims)))}
+
+def create_localizer_weights(input_dims, hidden_dims, output_dims, p=""):
+    weights = {p + "W1": tf.Variable(tf.random_normal(shape=(input_dims, hidden_dims))),
+               p + "b1": tf.Variable(tf.random_normal(shape=(1, hidden_dims))),
+               p + "W2": tf.Variable(tf.random_normal(shape=(hidden_dims, output_dims))),
+               p + "b2": tf.Variable(tf.random_normal(shape=(1, output_dims)))}
     return weights
 
 
