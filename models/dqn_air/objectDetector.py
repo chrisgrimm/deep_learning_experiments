@@ -10,9 +10,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 
-
-print 'HERE!'
-
 class AIR(object):
 
     def __init__(self, height, width, lstm_units, max_objects, batch_size, name, input):

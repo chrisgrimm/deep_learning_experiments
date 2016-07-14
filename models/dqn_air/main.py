@@ -84,6 +84,7 @@ class deep_atari:
             self.targetnet.w5.assign(self.qnet.w5),self.targetnet.b5.assign(self.qnet.b5)]
 
         self.sess.run(self.cp_ops)
+        self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
 
         if self.params['ckpt_file'] is not None:
             print 'loading checkpoint : ' + self.params['ckpt_file']
@@ -137,6 +138,7 @@ class deep_atari:
             if self.training and self.params['copy_freq'] > 0 and self.step % self.params['copy_freq'] == 0 and self.DB.get_size() > self.params['train_start']:
                 print '&&& Copying Qnet to targetnet\n'
                 self.sess.run(self.cp_ops)
+                self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
 
 
             if self.training and self.step % self.params['learning_interval'] == 0 and self.DB.get_size() > self.params['train_start'] :
