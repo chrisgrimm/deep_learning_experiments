@@ -139,7 +139,6 @@ class deep_atari:
 
             if self.training and self.step % self.params['learning_interval'] == 0 and self.DB.get_size() > self.params['train_start'] :
                 bat_s,bat_a,bat_t,bat_n,bat_r = self.DB.get_batches()
-                print len(bat_s)
                 bat_a = self.get_onehot(bat_a)
 
                 if self.params['copy_freq'] > 0 :
