@@ -32,7 +32,8 @@ class AIR(object):
         # copy lstm
         assert other.N == self.N
         for i in range(self.N):
-            with tf.variable_scope(other.name + str(i)):
+            with tf.variable_scope(other.name + str(i)) as scope:
+                scope.
                 otherMat = tf.get_variable('Matrix')
                 otherBias = tf.get_variable('Bias')
             with tf.variable_scope(self.name + str(i)):
@@ -61,6 +62,7 @@ class AIR(object):
         for iter in range(self.N):
             # pull something off the lstm
             print self.input.get_shape()
+            print self.name + str(iter)
             output, state = lstm(self.input, state, scope=self.name+str(iter))
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
