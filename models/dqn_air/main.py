@@ -15,7 +15,7 @@ gc.enable()
 rom = 'pong.bin'
 
 params = {
-    'visualize' : True,
+    'visualize' : False,
     'network_type':'nips',
     'ckpt_file':None,
     'steps_per_epoch': 50000,
