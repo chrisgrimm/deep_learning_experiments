@@ -61,7 +61,7 @@ class AIR(object):
         for iter in range(self.N):
             # pull something off the lstm
             print self.input.get_shape()
-            output, state = self.lstm(input, state, scope=self.name+str(iter))
+            output, state = lstm(input, state, scope=self.name+str(iter))
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])
