@@ -20,11 +20,11 @@ params = {
     'ckpt_file':None,
     'steps_per_epoch': 50000,
     'num_epochs': 100,
-    'eval_freq':50000,
+    'eval_freq':1000,
     'steps_per_eval':10000,
     'copy_freq' : 10000,
-    'disp_freq':10000,
-    'save_interval':10000,
+    'disp_freq':1000,
+    'save_interval':1000,
     'db_size': 1000000,
     'batch': 32,
     'num_act': 0,
@@ -126,7 +126,7 @@ class deep_atari:
         print 'Collecting replay memory for ' + str(self.params['train_start']) + ' steps'
 
         while self.step < (self.params['steps_per_epoch'] * self.params['num_epochs'] * self.params['learning_interval'] + self.params['train_start']):
-            print self.step 
+            print self.step
             if self.training :
                 if self.DB.get_size() >= self.params['train_start'] : self.step += 1 ; self.steps_train += 1
             else : self.step_eval += 1
@@ -167,8 +167,8 @@ class deep_atari:
 
             if self.DB.get_size() > self.params['train_start'] and self.step % self.params['save_interval'] == 0 and self.training:
                 save_idx = self.train_cnt
-                self.saver.save(self.sess,'ckpt/model_'+self.params['network_type']+'_'+str(save_idx))
-                sys.stdout.write('$$$ Model saved : %s\n\n' % ('ckpt/model_'+self.params['network_type']+'_'+str(save_idx)))
+                self.saver.save(self.sess,'./model_'+self.params['network_type']+'_'+str(save_idx))
+                sys.stdout.write('$$$ Model saved : %s\n\n' % ('./model_'+self.params['network_type']+'_'+str(save_idx)))
                 sys.stdout.flush()
 
             if self.training and self.step > 0 and self.step % self.params['disp_freq']  == 0 and self.DB.get_size() > self.params['train_start'] :
