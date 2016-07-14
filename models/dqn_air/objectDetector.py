@@ -33,7 +33,6 @@ class AIR(object):
         assert other.N == self.N
         for i in range(self.N):
             with tf.variable_scope(other.name + str(i)) as scope:
-                scope.
                 otherMat = tf.get_variable('Matrix')
                 otherBias = tf.get_variable('Bias')
             with tf.variable_scope(self.name + str(i)):
