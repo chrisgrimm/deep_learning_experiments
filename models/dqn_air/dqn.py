@@ -65,7 +65,7 @@ class DQN:
         self.discount = tf.constant(self.params['discount'])
         self.yj = tf.add(self.rewards, tf.mul(1.0-self.terminals, tf.mul(self.discount, self.q_t)))
         self.Qxa = tf.mul(self.y,self.actions)
-        self.Q_pred = tf.reduce_max(self.Qxa, reduction_indices=1)
+        self.Q_pred = tf.reduce_sum(self.Qxa, reduction_indices=1)
         #self.yjr = tf.reshape(self.yj,(-1,1))
         #self.yjtile = tf.concat(1,[self.yjr,self.yjr,self.yjr,self.yjr])
         #self.yjax = tf.mul(self.yjtile,self.actions)
