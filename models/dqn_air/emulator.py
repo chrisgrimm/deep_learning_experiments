@@ -23,9 +23,7 @@ class emulator:
         self.screen_width,self.screen_height = self.ale.getScreenDims()
         print("width/height: " +str(self.screen_width) + "/" + str(self.screen_height))
         self.vis = vis
-        if vis:
-            cv2.startWindowThread()
-            cv2.namedWindow(self.windowname)
+
 
     def get_image(self):
         numpy_surface = np.zeros(self.screen_height*self.screen_width*3, dtype=np.uint8)
@@ -43,11 +41,12 @@ class emulator:
         # scipy.misc.imsave('test.png',nextstate)
         if self.vis:
             cv2.imshow(self.windowname,nextstate)
+            cv2.waitKey(1)
         return nextstate, reward, self.ale.game_over()
 
 
 
 if __name__ == "__main__":
-    engine = emulator('breakout.bin',True)
-    engine.next(0)
-    time.sleep(5)
+    engine = emulator('pong.bin',True)
+    while True:
+        engine.next(np.random.randint(0, 5))

@@ -81,7 +81,7 @@ class AIR(object):
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])
             # use the image itself as the encoding, use small number of pixels because this should be enough
             # to identify the object's type and further forces localization
-            capture_size = 5
+            capture_size = 20
             x_att = tf.reshape(
                     transformer(tf.reshape(self.input, [-1, self.ih, self.iw, 1]), where, (capture_size, capture_size)),
                                [-1, capture_size, capture_size])
