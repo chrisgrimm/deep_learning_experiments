@@ -126,6 +126,7 @@ class deep_atari:
         print 'Collecting replay memory for ' + str(self.params['train_start']) + ' steps'
 
         while self.step < (self.params['steps_per_epoch'] * self.params['num_epochs'] * self.params['learning_interval'] + self.params['train_start']):
+            print self.step 
             if self.training :
                 if self.DB.get_size() >= self.params['train_start'] : self.step += 1 ; self.steps_train += 1
             else : self.step_eval += 1
