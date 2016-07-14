@@ -4,30 +4,34 @@ from models.attend_infer_repeat.SpatialTransformerNetwork import SpatialTransfor
     create_weights
 from models.attend_infer_repeat.VariationalAutoencoder import log_std_normal_pdf, log_normal_pdf, create_vae_weights, hook_vae_and_sample, hook_vae, log_bernoulli_pmf
 #from tf_utils import *
-from transformer import transformer
+from models.attend_infer_repeat.transformer import transformer
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 
 
+print 'HERE!'
 
 class AIR(object):
 
-    def __init__(self, height, width, lstm_units, max_objects):
+    def __init__(self, height, width, lstm_units, max_objects, batch_size, name, input):
         self.ih, self.iw = height, width
         self.lstm_u = lstm_units
         self.N = max_objects
         self.vars = {}
-        self.setup_network()
+        self.batch_size = batch_size
+        self.input = input
+        self.setup_network(name)
+        del self.vars['name']
 
 
     def extract_where(self, flat_where):
         sub_where = tf.transpose(tf.gather(tf.transpose(flat_where), np.mat('0 0 1; 0 0 2')), perm=[2, 0, 1]) * np.mat('1 0 1; 0 1 1')
         return sub_where
 
-    def setup_network(self):
-        self.input = tf.placeholder(tf.float32, [None, self.ih * self.iw], name='inp')
+    def setup_network(self, name):
+        print 'setting up network!'
         # setup lstm
         lstm = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_u)
         state = tf.zeros(shape=[self.batch_size, lstm.state_size])
@@ -39,7 +43,8 @@ class AIR(object):
         # step through the lstm.
         for iter in range(self.N):
             # pull something off the lstm
-            output, state = lstm(self.input, state, scope=str(iter))
+            print self.input.get_shape()
+            output, state = lstm(self.input, state, scope=name+str(iter))
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])

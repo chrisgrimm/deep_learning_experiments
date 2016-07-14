@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import cv2
-from objectDetector import AIR
+from models.dqn_air.objectDetector import AIR
 class DQN:
     def __init__(self, params,name):
         self.network_type = 'nips'
@@ -41,12 +41,12 @@ class DQN:
 
 
         #fc3
-        self.obj_detector = AIR(84, 84, 256, 3)
+        flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
+        print params['batch']
+        self.obj_detector = AIR(84, 84, 256, 3, params['batch'], 'air'+name, flat_input)
         # only take the last frame from the input.
-        self.obj_detector.input = self.x[:, :, :, 3]
         self.o2_flat = self.obj_detector.output
-        layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1]
-        self.o2_flat = tf.reshape(self.o2, [-1,dim],name=self.network_name + '_'+layer_name+'_input_flat')
+        layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
         self.w3 = tf.Variable(tf.random_normal([dim,hiddens], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
         self.b3 = tf.Variable(tf.constant(0.1, shape=[hiddens]),name=self.network_name + '_'+layer_name+'_biases')
         self.ip3 = tf.add(tf.matmul(self.o2_flat,self.w3),self.b3,name=self.network_name + '_'+layer_name+'_ips')

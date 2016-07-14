@@ -68,13 +68,10 @@ class deep_atari:
         self.qnet = DQN(self.params,'qnet')
         self.targetnet = DQN(self.params,'targetnet')
         self.sess.run(tf.initialize_all_variables())
-        saver_dict = {'qw1':self.qnet.w1,'qb1':self.qnet.b1,
-                'qw2':self.qnet.w2,'qb2':self.qnet.b2,
+        saver_dict = {
                 'qw3':self.qnet.w3,'qb3':self.qnet.b3,
                 'qw4':self.qnet.w4,'qb4':self.qnet.b4,
                 'qw5':self.qnet.w5,'qb5':self.qnet.b5,
-                'tw1':self.targetnet.w1,'tb1':self.targetnet.b1,
-                'tw2':self.targetnet.w2,'tb2':self.targetnet.b2,
                 'tw3':self.targetnet.w3,'tb3':self.targetnet.b3,
                 'tw4':self.targetnet.w4,'tb4':self.targetnet.b4,
                 'tw5':self.targetnet.w5,'tb5':self.targetnet.b5,
@@ -82,8 +79,6 @@ class deep_atari:
         self.saver = tf.train.Saver(saver_dict)
         #self.saver = tf.train.Saver()
         self.cp_ops = [
-            self.targetnet.w1.assign(self.qnet.w1),self.targetnet.b1.assign(self.qnet.b1),
-            self.targetnet.w2.assign(self.qnet.w2),self.targetnet.b2.assign(self.qnet.b2),
             self.targetnet.w3.assign(self.qnet.w3),self.targetnet.b3.assign(self.qnet.b3),
             self.targetnet.w4.assign(self.qnet.w4),self.targetnet.b4.assign(self.qnet.b4),
             self.targetnet.w5.assign(self.qnet.w5),self.targetnet.b5.assign(self.qnet.b5)]
@@ -144,6 +139,7 @@ class deep_atari:
 
             if self.training and self.step % self.params['learning_interval'] == 0 and self.DB.get_size() > self.params['train_start'] :
                 bat_s,bat_a,bat_t,bat_n,bat_r = self.DB.get_batches()
+                print len(bat_s)
                 bat_a = self.get_onehot(bat_a)
 
                 if self.params['copy_freq'] > 0 :
@@ -276,7 +272,8 @@ class deep_atari:
     def select_action(self,st):
         if np.random.rand() > self.params['eps']:
             #greedy with random tie-breaking
-            Q_pred = self.sess.run(self.qnet.y, feed_dict = {self.qnet.x: np.reshape(st, (1,84,84,4))})[0]
+            # TODO figure out a better way to do this. LSTM doesnt play nice with variable batch size...
+            Q_pred = self.sess.run(self.qnet.y, feed_dict = {self.qnet.x: np.tile(np.reshape(st, (1,84,84,4)), (params['batch'], 1, 1, 1))})[0]
             a_winner = np.argwhere(Q_pred == np.amax(Q_pred))
             if len(a_winner) > 1:
                 act_idx = a_winner[np.random.randint(0, len(a_winner))][0]
@@ -287,7 +284,8 @@ class deep_atari:
         else:
             #random
             act_idx = np.random.randint(0,len(self.engine.legal_actions))
-            Q_pred = self.sess.run(self.qnet.y, feed_dict = {self.qnet.x: np.reshape(st, (1,84,84,4))})[0]
+
+            Q_pred = self.sess.run(self.qnet.y, feed_dict = {self.qnet.x: np.tile(np.reshape(st, (1,84,84,4)), (params['batch'], 1, 1, 1))})[0]
             return act_idx,self.engine.legal_actions[act_idx], Q_pred[act_idx]
 
     def get_onehot(self,actions):
