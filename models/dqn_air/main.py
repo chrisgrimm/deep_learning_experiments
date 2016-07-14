@@ -3,7 +3,7 @@ from emulator import *
 import tensorflow as tf
 import numpy as np
 import time
-from dqn import DQN
+from models.dqn_air.dqn import DQN
 from ale_python_interface import ALEInterface
 import cv2
 from scipy import misc
