@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import cv2
 from models.dqn_air.objectDetector import AIR
+
 class DQN:
     def __init__(self, params,name):
         self.network_type = 'nips'

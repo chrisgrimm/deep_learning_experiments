@@ -296,40 +296,39 @@ class deep_atari:
         return actions_onehot
 
 
-if __name__ == "__main__":
-    dict_items = params.items()
-    for i in range(1,len(sys.argv),2):
-        if sys.argv[i] == '-weight' :params['ckpt_file'] = sys.argv[i+1]
-        elif sys.argv[i] == '-network_type' :params['network_type'] = sys.argv[i+1]
-        elif sys.argv[i] == '-visualize' :
-            if sys.argv[i+1] == 'y' : params['visualize'] = True
-            elif sys.argv[i+1] == 'n' : params['visualize'] = False
-            else:
-                print 'Invalid visualization argument!!! Available arguments are'
-                print '        y or n'
-                raise ValueError()
-        elif sys.argv[i] == '-gpu_fraction' : params['gpu_fraction'] = float(sys.argv[i+1])
-        elif sys.argv[i] == '-db_size' : params['db_size'] = int(sys.argv[i+1])
-        elif sys.argv[i] == '-only_eval' : params['only_eval'] = sys.argv[i+1]
-        else :
-            print 'Invalid arguments!!! Available arguments are'
-            print '        -weight (filename)'
-            print '        -network_type (nips or nature)'
-            print '        -visualize (y or n)'
-            print '        -gpu_fraction (0.1~0.9)'
-            print '        -db_size (integer)'
+dict_items = params.items()
+for i in range(1,len(sys.argv),2):
+    if sys.argv[i] == '-weight' :params['ckpt_file'] = sys.argv[i+1]
+    elif sys.argv[i] == '-network_type' :params['network_type'] = sys.argv[i+1]
+    elif sys.argv[i] == '-visualize' :
+        if sys.argv[i+1] == 'y' : params['visualize'] = True
+        elif sys.argv[i+1] == 'n' : params['visualize'] = False
+        else:
+            print 'Invalid visualization argument!!! Available arguments are'
+            print '        y or n'
             raise ValueError()
-
-    if params['only_eval'] == 'y' : only_eval = True
-    elif params['only_eval'] == 'n' : only_eval = False
+    elif sys.argv[i] == '-gpu_fraction' : params['gpu_fraction'] = float(sys.argv[i+1])
+    elif sys.argv[i] == '-db_size' : params['db_size'] = int(sys.argv[i+1])
+    elif sys.argv[i] == '-only_eval' : params['only_eval'] = sys.argv[i+1]
     else :
-        print 'Invalid only_eval option! Available options are'
-        print '        y or n'
+        print 'Invalid arguments!!! Available arguments are'
+        print '        -weight (filename)'
+        print '        -network_type (nips or nature)'
+        print '        -visualize (y or n)'
+        print '        -gpu_fraction (0.1~0.9)'
+        print '        -db_size (integer)'
         raise ValueError()
 
-    if only_eval:
-        params['eval_freq'] = 1
-        params['train_start'] = 100
+if params['only_eval'] == 'y' : only_eval = True
+elif params['only_eval'] == 'n' : only_eval = False
+else :
+    print 'Invalid only_eval option! Available options are'
+    print '        y or n'
+    raise ValueError()
 
-    da = deep_atari(params)
-    da.start()
+if only_eval:
+    params['eval_freq'] = 1
+    params['train_start'] = 100
+
+da = deep_atari(params)
+da.start()
