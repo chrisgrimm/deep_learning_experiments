@@ -97,14 +97,14 @@ class AIR(object):
             # what registers contain the "natural encodings of the images"
             self.what_registers.append(what)
 
-            concated = tf.concat(1, [what, where_flat])
-            out, _ = hook_net(concated, self.additive_weights, [tf.nn.relu, tf.nn.relu])
-            self.output += out
+            #concated = tf.concat(1, [what, where_flat])
+            #out, _ = hook_net(concated, self.additive_weights, [tf.nn.relu, tf.nn.relu])
+            #self.output += out
 
 
         # construct dense output
-        #self.output = tf.concat(1, [self.what_registers[0], self.where_registers[0]])
-        #for what, where in zip(self.what_registers, self.where_registers)[1:]:
-        #    self.output = tf.concat(1, [self.output, tf.concat(1, [what, where])])
+        self.output = tf.concat(1, [self.what_registers[0], self.where_registers[0]])
+        for what, where in zip(self.what_registers, self.where_registers)[1:]:
+            self.output = tf.concat(1, [self.output, tf.concat(1, [what, where])])
 
 
