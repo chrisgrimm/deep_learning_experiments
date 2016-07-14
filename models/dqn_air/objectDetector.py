@@ -31,15 +31,28 @@ class AIR(object):
     def copyTo(self, other):
         # copy lstm
         assert other.N == self.N
+        other_variables = dict()
+        self_variables = dict()
         for i in range(self.N):
             with tf.variable_scope(other.name + str(i)) as scope:
-                otherMat = tf.get_variable('Matrix')
-                otherBias = tf.get_variable('Bias')
-            with tf.variable_scope(self.name + str(i)):
-                mat = tf.get_variable('Matrix')
-                bias = tf.get_variable('Bias')
-            tf.assign(otherMat, mat)
-            tf.assign(otherBias, bias)
+                other_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
+                for var in other_vars:
+                    if 'Matrix' in var.name:
+                        other_variables[str(i)+'Matrix'] = var
+                    if 'Bias' in var.name:
+                        other_variables[str(i)+'Bias'] = var
+            with tf.variable_scope(self.name + str(i)) as scope:
+                self_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
+                for var in self_vars:
+                    if 'Matrix' in var.name:
+                        self_variables[str(i)+'Matrix'] = var
+                    if 'Bias' in var.name:
+                        self_variables[str(i)+'Bias'] = var
+        # sanity check that it actually extracted the variables
+        #print len(self_variables.keys()), len(other_variables.keys())
+        assert len(self_variables.keys()) == len(other_variables.keys()) == self.N * 2
+        for name in self_variables.keys():
+            tf.assign(other_variables[name], self_variables[name])
         # copy vars...
         for name in self.vars.keys():
             tf.assign(other.vars[name], self.vars[name])
