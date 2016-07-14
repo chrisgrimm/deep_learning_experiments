@@ -222,8 +222,8 @@ class deep_atari:
             self.state_resized = cv2.resize(self.state,(84,110))
             self.state_gray = cv2.cvtColor(self.state_resized, cv2.COLOR_BGR2GRAY)
             self.state_proc[:,:,3] = self.state_gray[26:110,:]/self.params['img_scale']
-            cv2.imshow('asdfsdg', self.state_proc[:, :, 3])
-            cv2.waitKey(1)
+            #cv2.imshow('asdfsdg', self.state_proc[:, :, 3])
+            #cv2.waitKey(1)
             #TODO : add video recording
 
     def reset_game(self):
