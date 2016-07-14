@@ -5,9 +5,9 @@ import random
 
 def create_weights(input_dims, hidden_dims, output_dims, p):
     weights = {p + "W1": tf.Variable(tf.random_normal(shape=(input_dims, hidden_dims))),
-               p + "b1": tf.Variable(tf.constant(0.0, shape=(1, hidden_dims))),
+               p + "b1": tf.Variable(tf.constant(0.0, shape=[hidden_dims])),
                p + "W2": tf.Variable(tf.random_normal(shape=(hidden_dims, output_dims))),
-               p + "b2": tf.Variable(tf.constant(0.0, shape=(1, output_dims))),
+               p + "b2": tf.Variable(tf.constant(0.0, shape=[output_dims])),
                "name": p}
     return weights
 

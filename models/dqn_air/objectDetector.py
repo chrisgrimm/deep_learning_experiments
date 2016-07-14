@@ -63,13 +63,18 @@ class AIR(object):
         print 'setting up network!'
         # setup lstm
         lstm = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_u)
-
+        capture_size = 20
         state = tf.zeros(shape=[self.batch_size, lstm.state_size])
         # set up zwhat and localizer weights
         self.localizer_weights = create_localizer_weights(self.lstm_u, 20, 3, "localizer_weights")
         self.vars.update(self.localizer_weights)
+        self.zwhat_weights = create_weights(capture_size**2, 500, 100, "zwhat_weights")
+        self.vars.update(self.zwhat_weights)
+        self.additive_weights = create_weights((100 + 3), 500, 25*self.N, "additive_weights")
+        self.vars.update(self.additive_weights)
         self.where_registers = []
         self.what_registers = []
+        self.output = tf.zeros([self.batch_size, 25*self.N])
         # step through the lstm.
         for iter in range(self.N):
             # pull something off the lstm
@@ -81,24 +86,25 @@ class AIR(object):
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])
             # use the image itself as the encoding, use small number of pixels because this should be enough
             # to identify the object's type and further forces localization
-            capture_size = 20
             x_att = tf.reshape(
                     transformer(tf.reshape(self.input, [-1, self.ih, self.iw, 1]), where, (capture_size, capture_size)),
                                [-1, capture_size, capture_size])
-            x_att_flat = tf.reshape(x_att, [-1, capture_size*capture_size])
+            x_att_flat = tf.reshape(x_att, [-1, capture_size**2])
             # where registers contain the raw transforms as (s, x, y).
+            print x_att_flat.get_shape()
+            what, _ = hook_net(x_att_flat, self.zwhat_weights, [tf.nn.relu, tf.nn.relu])
             self.where_registers.append(where_flat)
             # what registers contain the "natural encodings of the images"
-            self.what_registers.append(x_att_flat)
+            self.what_registers.append(what)
 
-        # construct invariant output
-        self.output = tf.concat(1, [self.what_registers[0], self.where_registers[0]])
-        for what, where in zip(self.what_registers, self.where_registers):
-            self.output += tf.concat(1, [what, where])
+            concated = tf.concat(1, [what, where_flat])
+            out, _ = hook_net(concated, self.additive_weights, [tf.nn.relu, tf.nn.relu])
+            self.output += out
+
 
         # construct dense output
         #self.output = tf.concat(1, [self.what_registers[0], self.where_registers[0]])
         #for what, where in zip(self.what_registers, self.where_registers)[1:]:
-        #    self.output = tf.concat(1, tf.concat(1, [what, where]))
+        #    self.output = tf.concat(1, [self.output, tf.concat(1, [what, where])])
 
 
