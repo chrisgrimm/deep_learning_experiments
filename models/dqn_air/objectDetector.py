@@ -22,7 +22,8 @@ class AIR(object):
         self.vars = {}
         self.batch_size = batch_size
         self.input = input
-        self.setup_network(name)
+        self.name = name
+        self.setup_network()
         del self.vars['name']
 
 
@@ -30,10 +31,29 @@ class AIR(object):
         sub_where = tf.transpose(tf.gather(tf.transpose(flat_where), np.mat('0 0 1; 0 0 2')), perm=[2, 0, 1]) * np.mat('1 0 1; 0 1 1')
         return sub_where
 
-    def setup_network(self, name):
+    def copyTo(self, other):
+        # copy lstm
+        assert other.N == self.N
+        for i in range(self.N):
+            with tf.variable_scope(other.name + str(i)):
+                otherMat = tf.get_variable('Matrix')
+                otherBias = tf.get_variable('Bias')
+            with tf.variable_scope(self.name + str(i)):
+                mat = tf.get_variable('Matrix')
+                bias = tf.get_variable('Bias')
+            tf.assign(otherMat, mat)
+            tf.assign(otherBias, bias)
+        # copy vars...
+        for name in self.vars.keys():
+            tf.assign(other.vars[name], self.vars[name])
+
+
+
+    def setup_network(self):
         print 'setting up network!'
         # setup lstm
         lstm = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_u)
+
         state = tf.zeros(shape=[self.batch_size, lstm.state_size])
         # set up zwhat and localizer weights
         self.localizer_weights = create_localizer_weights(self.lstm_u, 20, 3, "localizer_weights")
@@ -44,7 +64,7 @@ class AIR(object):
         for iter in range(self.N):
             # pull something off the lstm
             print self.input.get_shape()
-            output, state = lstm(self.input, state, scope=name+str(iter))
+            output, state = self.lstm(input, state, scope=self.name+str(iter))
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])

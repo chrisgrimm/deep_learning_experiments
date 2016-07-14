@@ -22,7 +22,7 @@ params = {
     'num_epochs': 100,
     'eval_freq':10000,
     'steps_per_eval':10000,
-    'copy_freq' : 10000,
+    'copy_freq' : 1000,
     'disp_freq':1000,
     'save_interval':1000,
     'db_size': 1000000,
@@ -126,7 +126,7 @@ class deep_atari:
         print 'Collecting replay memory for ' + str(self.params['train_start']) + ' steps'
 
         while self.step < (self.params['steps_per_epoch'] * self.params['num_epochs'] * self.params['learning_interval'] + self.params['train_start']):
-            if self.step % 100 == 0:
+            if self.step % 100 == 0 and self.training:
                 print self.step
             if self.training :
                 if self.DB.get_size() >= self.params['train_start'] : self.step += 1 ; self.steps_train += 1
