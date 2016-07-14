@@ -52,7 +52,7 @@ class SpatialTransformerNetwork(object):
         self.kernel = kernel
         supported_kernels = ['nearest', 'bilinear', 'custom']
         if self.kernel not in supported_kernels:
-            raise Exception('Kernel type %s not supported. Supported types are '+' '.join(supported_kernels)+'.')
+            raise Exception('Kernel type %s not roms. Supported types are '+' '.join(supported_kernels)+'.')
         if self.kernel == 'custom' and custom_kernel is None:
             raise Exception('custom_kernel keyword argument must be specified if kernel=\'custom\'')
         self.output_width = output_width

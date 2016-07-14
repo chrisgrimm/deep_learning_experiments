@@ -89,9 +89,9 @@ class AIR(object):
         self.vars.update(self.z_pres_weights)
         self.localizer_weights = create_localizer_weights(self.lstm_u, 20, 3, "localizer_weights")
         self.vars.update(self.localizer_weights)
-        self.background_extraction_weights = create_weights(self.ih * selfiw, 500, 1, "background_extraction_weights")
+        self.background_extraction_weights = create_weights(self.ih * self.iw, 500, 1, "background_extraction_weights")
         self.vars.update(self.background_extraction_weights)
-        background = hook_net(self.inpt)
+        #background = hook_net(self.inpt)
         q_z_given_x = 0
         p_z = 0
         # step through the lstm.

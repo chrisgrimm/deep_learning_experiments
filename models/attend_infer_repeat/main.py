@@ -53,7 +53,7 @@ def take_sequence(rom_path, step, n):
             j += 1
     return screenshots
 
-rom_path = './supported/pong.bin'
+rom_path = './roms/pong.bin'
 
 sess = tf.Session()
 
