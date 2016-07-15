@@ -44,7 +44,7 @@ class DQN:
         #fc3
         flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
         print params['batch']
-        self.obj_detector = AIR(84, 84, 256, 3, params['batch'], 'air'+name, flat_input)
+        self.obj_detector = AIR(84, 84, 256, 10, params['batch'], 'air'+name, flat_input)
         # only take the last frame from the input.
         self.o2_flat = self.obj_detector.output
         layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
