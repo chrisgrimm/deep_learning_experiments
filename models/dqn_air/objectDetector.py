@@ -81,6 +81,7 @@ class AIR(object):
             print self.input.get_shape()
             print self.name + str(iter)
             output, state = lstm(self.input, state, scope=self.name+str(iter))
+            output = tf.nn.batch_normalization(output, tf.zeros_like(output), tf.ones_like(output), 0, 1, 1)
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
             where = tf.reshape(self.extract_where(where_flat), [-1, 6])

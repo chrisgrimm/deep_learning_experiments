@@ -13,7 +13,6 @@ class DQN:
         self.actions = tf.placeholder("float32", [None, params['num_act']],name=self.network_name + '_actions')
         self.rewards = tf.placeholder("float32", [None],name=self.network_name + '_rewards')
         self.terminals = tf.placeholder("float32", [None],name=self.network_name + '_terminals')
-
         # -------
         # -------
         # Removed convolutional layers
@@ -47,6 +46,7 @@ class DQN:
         self.obj_detector = AIR(84, 84, 256, 6, params['batch'], 'air'+name, flat_input)
         # only take the last frame from the input.
         self.o2_flat = self.obj_detector.output
+        self.o2_flat = tf.nn.batch_normalization(self.o2_flat, tf.zeros_like(self.o2_flat), tf.ones_like(self.o2_flat), 0, 1, 1)
         layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
         self.w3 = tf.Variable(tf.random_normal([dim,hiddens], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
         self.b3 = tf.Variable(tf.constant(0.1, shape=[hiddens]),name=self.network_name + '_'+layer_name+'_biases')

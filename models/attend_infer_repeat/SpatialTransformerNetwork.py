@@ -15,6 +15,7 @@ def create_weights(input_dims, hidden_dims, output_dims, p):
 def hook_net(x, weights, activations):
     p = weights["name"]
     hidden_layer = activations[0](tf.matmul(x, weights[p + "W1"]) + weights[p + "b1"])
+    hidden_layer = tf.nn.batch_normalization(hidden_layer, tf.zeros_like(hidden_layer), tf.ones_like(hidden_layer), 0, 1, 1)
     output = activations[1](tf.matmul(hidden_layer, weights[p + "W2"]) + weights[p + "b2"])
     return output, hidden_layer
 
