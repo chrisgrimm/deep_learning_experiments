@@ -43,7 +43,7 @@ class DQN:
         #fc3
         flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
         print params['batch']
-        self.obj_detector = AIR(84, 84, 256, 6, params['batch'], 'air'+name, flat_input)
+        self.obj_detector = AIR(84, 84, 256, 3, params['batch'], 'air'+name, flat_input)
         # only take the last frame from the input.
         self.o2_flat = self.obj_detector.output
         self.o2_flat = tf.nn.batch_normalization(self.o2_flat, tf.zeros_like(self.o2_flat), tf.ones_like(self.o2_flat), 0, 1, 1)

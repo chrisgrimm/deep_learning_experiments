@@ -32,7 +32,7 @@ params = {
     'input_dims_proc' : [84, 84, 4],
     'learning_interval': 1,
     'eps': 1.0,
-    'eps_step':100000,
+    'eps_step':1000000,
     'eps_min' : 0.1,
     'eps_eval' : 0.05,
     'discount': 0.95,
