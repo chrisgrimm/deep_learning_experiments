@@ -46,9 +46,9 @@ train_batch = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(loss)
 print 'here!'
 print w, h
 
-sess = tf.Session()
+#sess = tf.Session()
 
-sess.run(tf.initialize_all_variables())
+#sess.run(tf.initialize_all_variables())
 i = 0
 print 'here!'
 
@@ -60,21 +60,27 @@ def make_batch(frame_buffer, batch_size):
     return batch
 
 
-while True:
-    inp_data = make_batch(frame_buffer, batch_size)
-    out_data = frame_buffer.sample(batch_size)
-    feed_dict = {inp: inp_data, desired_outs: out_data}
-    [_, bgs, _loss] = sess.run([train_batch, output, loss], feed_dict)
-    print i, _loss
-    if i % 100 == 0:
-        print i, loss
-        plt.imshow(bgs[0], cmap='Greys_r')
-        plt.savefig('./images/background_%s.png' % i)
-        plt.savefig('./images/background.png')
-        plt.close()
-        plt.imshow(out_data[0])
-        plt.savefig('./images/actual.png')
-    i += 1
-    getFrames(1)
+#while True:
+    #inp_data = make_batch(frame_buffer, batch_size)
+    #out_data = frame_buffer.sample(batch_size)
+    #feed_dict = {inp: inp_data, desired_outs: out_data}
+    #[_, bgs, _loss] = sess.run([train_batch, output, loss], feed_dict)
+    #print i, _loss
+    #if i % 100 == 0:
+    #    print i, loss
+    #    plt.imshow(bgs[0], cmap='Greys_r')
+    #    plt.savefig('./images/background_%s.png' % i)
+    #    plt.savefig('./images/background.png')
+    #    plt.close()
+    #    plt.imshow(out_data[0])
+    #    plt.savefig('./images/actual.png')
+    #i += 1
+    #getFrames(1)
 
+
+res = np.array(frame_buffer.buffer)
+res = np.median(res, 0)
+plt.imshow(res)
+plt.show()
+raw_input()
 

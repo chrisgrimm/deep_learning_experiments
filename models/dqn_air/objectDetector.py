@@ -33,32 +33,28 @@ class AIR(object):
         assert other.N == self.N
         other_variables = dict()
         self_variables = dict()
-        for i in range(self.N):
-            with tf.variable_scope(other.name + str(i)) as scope:
-                other_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
-                for var in other_vars:
-                    if 'Matrix' in var.name:
-                        other_variables[str(i)+'Matrix'] = var
-                    if 'Bias' in var.name:
-                        other_variables[str(i)+'Bias'] = var
-            with tf.variable_scope(self.name + str(i)) as scope:
-                self_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
-                for var in self_vars:
-                    if 'Matrix' in var.name:
-                        self_variables[str(i)+'Matrix'] = var
-                    if 'Bias' in var.name:
-                        self_variables[str(i)+'Bias'] = var
+        with tf.variable_scope(other.name + '_lstm') as scope:
+            other_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
+            for var in other_vars:
+                if 'Matrix' in var.name:
+                    other_variables['Matrix'] = var
+                if 'Bias' in var.name:
+                    other_variables['Bias'] = var
+        with tf.variable_scope(self.name + '_lstm') as scope:
+            self_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
+            for var in self_vars:
+                if 'Matrix' in var.name:
+                    self_variables['Matrix'] = var
+                if 'Bias' in var.name:
+                    self_variables['Bias'] = var
         # sanity check that it actually extracted the variables
         #print len(self_variables.keys()), len(other_variables.keys())
-        assert len(self_variables.keys()) == len(other_variables.keys()) == self.N * 2
+        assert len(self_variables.keys()) == len(other_variables.keys()) == 2
         for name in self_variables.keys():
             tf.assign(other_variables[name], self_variables[name])
         # copy vars...
         for name in self.vars.keys():
             tf.assign(other.vars[name], self.vars[name])
-
-    def convLayer(self, vars):
-        tf.nn
 
     def setup_network(self):
         print 'setting up network!'
@@ -81,7 +77,10 @@ class AIR(object):
             # pull something off the lstm
             print self.input.get_shape()
             print self.name + str(iter)
-            output, state = lstm(self.input, state, scope=self.name+str(iter))
+            with tf.variable_scope(self.name+'_lstm') as scope:
+                if iter > 0:
+                    scope.reuse_variables()
+                output, state = lstm(self.input, state, scope=scope)
             output = tf.nn.batch_normalization(output, tf.zeros_like(output), tf.ones_like(output), 0, 1, 1)
             # construct where from lstm output
             where_flat, _ = hook_net(output, self.localizer_weights, [tf.nn.softplus, tf.nn.tanh])
