@@ -24,17 +24,21 @@ lstm = tf.nn.rnn_cell.BasicLSTMCell(h*w)
 state = tf.zeros(shape=[1, lstm.state_size])
 outs_list = []
 for i in range(batch_size):
-    output, state = lstm(tf.reshape(inp[i, :, :], [1, h*w]), state, scope='lstm_%s' % i)
+    with tf.variable_scope('lstm_scope') as scope:
+        if i > 0:
+            scope.reuse_variables()
+        output, state = lstm(tf.reshape(inp[i, :, :], [1, h*w]), state, scope=scope)
     output = tf.reshape(output, [1, h, w])
     outs_list.append(output)
 outs = tf.concat(0, outs_list)
 
 loss = tf.reduce_mean(tf.pow(outs - desired_outs, 2))
 train_batch = tf.train.AdamOptimizer().minimize(loss)
-
+print 'here!'
 sess = tf.Session()
 sess.run(tf.initialize_all_variables())
 i = 0
+print 'here!'
 while True:
     print i
     feed_dict = {inp: frame_buffer.sample(50), desired_outs: frame_buffer.sample(50)}
