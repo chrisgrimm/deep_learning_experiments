@@ -42,6 +42,7 @@ class AIR(object):
         # step through the lstm.
         for iter in range(self.N):
             output, state = lstm(x, state, scope=str(iter))
+            output = tf.nn.batch_normalization(output, tf.zeros_like(output), tf.ones_like(output), 0, 1, 1)
             z_where_params, vars = VAE(output, 100, 3, 'gaussian', prefix='z_where_%s_' % iter)
             z_where_random_step = tf.placeholder(tf.float32, [self.batch_size, 3])
             self.z_where_random.append(z_where_random_step)
@@ -114,7 +115,7 @@ class AIR(object):
         print self.z_preses_sum.get_shape()
         self.loss = tf.reduce_mean(tf.reduce_mean(tf.pow(self.output - self.input, 2), reduction_indices=1), reduction_indices=0)
         #self.loss = tf.reduce_mean(-(p - q), reduction_indices=0)
-        self.train = tf.train.AdamOptimizer().minimize(self.loss)
+        self.train_vae = tf.train.AdamOptimizer().minimize(self.loss, var_list=)
 
     def add_randomness(self, feed_dict, batch_size):
         for i in range(self.N):

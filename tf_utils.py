@@ -20,11 +20,12 @@ def connected_layers(input, out_dims, nonlinearities, prefix=''):
     next = input
     vars = dict()
     for layer, (out_dim, nonlinearity) in enumerate(zip(out_dims, nonlinearities)):
-        next, layer_vars = connected_layer(next, out_dim, nonlinearity, prefix=prefix+'_layer%s_' % layer)
+        is_final = (layer == (len(nonlinearities)-1))
+        next, layer_vars = connected_layer(next, out_dim, nonlinearity, is_final, prefix=prefix+'_layer%s_' % layer)
         vars.update(layer_vars)
     return next, vars
 
-def connected_layer(input, out_dim, nonlinearity, prefix=''):
+def connected_layer(input, out_dim, nonlinearity, final_layer, prefix=''):
     in_dim = input.get_shape()[1].value
     vars = dict()
     if out_dim == 3:
@@ -41,5 +42,10 @@ def connected_layer(input, out_dim, nonlinearity, prefix=''):
     }
     if nonlinearity not in nonlinearity_mapping:
         raise Exception('unsupported nonlinearity')
-    return nonlinearity_mapping[nonlinearity](tf.matmul(input, w) + b), vars
+    res = nonlinearity_mapping[nonlinearity](tf.matmul(input, w) + b)
+    if final_layer:
+        return res, vars
+    else:
+        res = tf.nn.batch_normalization(res, tf.zeros_like(res), tf.ones_like(res), 0, 1, 1)
+        return res, vars
 

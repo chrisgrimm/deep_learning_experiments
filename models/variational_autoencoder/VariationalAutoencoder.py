@@ -18,6 +18,7 @@ def VAE(input, hiddenSize, codeSize, rvType, prefix=''):
     b1 = vars[p+'b1'] = tf.Variable(tf.constant(0.1, shape=[hiddenSize]))
     # also sigmoid seems to work better than relu. gradient was exploding before.
     h1 = tf.nn.sigmoid(tf.add(tf.matmul(input, W1), b1))
+    h1 = tf.nn.batch_normalization(h1, tf.zeros_like(h1), tf.ones_like(h1), 0, 1, 1)
     W2_mu = vars[p+'W2_mu'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
     b2_mu = vars[p+'b2_mu'] = tf.Variable(tf.constant(0.1, shape=[codeSize]))
     W2_sigma = vars[p+'W2_sigma'] = tf.Variable(tf.random_normal(shape=[hiddenSize, codeSize], stddev=0.01))
