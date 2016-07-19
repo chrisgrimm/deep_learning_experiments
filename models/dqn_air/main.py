@@ -22,7 +22,7 @@ params = {
     'num_epochs': 100,
     'eval_freq':10000,
     'steps_per_eval':10000,
-    'copy_freq' : 10000,
+    'copy_freq' : 10000000000000000,
     'disp_freq':1000,
     'save_interval':10000,
     'db_size': 1000000,
