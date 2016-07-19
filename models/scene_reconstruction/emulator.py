@@ -24,7 +24,10 @@ def _act(action, rgb=False):
     if rgb:
         return frame.reshape((h, w, 3))
     else:
-        return frame.reshape((h, w))
+        return prepareFrame(frame.reshape((h, w)))
+
+def prepareFrame(frame):
+    return cv2.resize(frame, (84, 110))[26:110, :]
 
 def getFrames(n, rgb=False):
     random_action_indices = np.random.randint(0, len(actions), n)

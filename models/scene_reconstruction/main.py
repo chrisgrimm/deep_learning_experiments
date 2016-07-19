@@ -1,5 +1,5 @@
 import tensorflow as tf
-from emulator import w, h, getFrames
+from emulator import getFrames
 from RollingBuffer import RollingBuffer
 import cv2
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import numpy as np
 matplotlib.use('Agg')
 batch_size = 50
 frame_buffer_size = 1000
-
+w, h = 84, 84
 # put initial frames in the buffer
 frame_buffer = RollingBuffer(frame_buffer_size)
 initial_frames = getFrames(frame_buffer_size)
@@ -34,7 +34,11 @@ output = tf.reshape(output, [-1, h, w])
 loss = tf.reduce_mean(tf.pow(output - desired_outs, 2))
 train_batch = tf.train.AdamOptimizer().minimize(loss)
 print 'here!'
+print w, h
+raw_input()
+
 sess = tf.Session()
+
 sess.run(tf.initialize_all_variables())
 i = 0
 print 'here!'
