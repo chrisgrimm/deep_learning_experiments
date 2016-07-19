@@ -27,7 +27,8 @@ def _act(action, rgb=False):
         return prepareFrame(frame.reshape((h, w)))
 
 def prepareFrame(frame):
-    return cv2.resize(frame, (50, 50))
+    image = cv2.resize(frame, (84, 110))[26:110, :] / 255.0
+    return image
 
 def getFrames(n, rgb=False):
     random_action_indices = np.random.randint(0, len(actions), n)

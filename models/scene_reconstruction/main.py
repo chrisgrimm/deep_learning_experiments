@@ -2,10 +2,11 @@ import tensorflow as tf
 from emulator import getFrames
 from RollingBuffer import RollingBuffer
 import cv2
-import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 batch_size = 50
 frame_buffer_size = 1000
 w, h = 84, 84
@@ -37,6 +38,7 @@ W2 = tf.Variable(tf.random_normal([256, w*h]))
 b2 = tf.Variable(tf.constant(0.1, shape=[w*h]))
 hidden = tf.nn.relu(tf.matmul(lstm_output, W1) + b1)
 output = tf.nn.sigmoid(tf.matmul(hidden, W2) + b2)
+output = tf.reshape(output, [-1, h, w])
 
 
 loss = tf.reduce_mean(tf.pow(output - desired_outs, 2))
