@@ -69,7 +69,7 @@ while True:
         print i, loss
         plt.imshow(bgs[0], cmap='Greys_r')
         plt.savefig('./images/background_%s.png' % i)
-        plt.savefig('./images/background.png' % i)
+        plt.savefig('./images/background.png')
     i += 1
 
 
