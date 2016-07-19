@@ -8,7 +8,7 @@ import numpy as np
 matplotlib.use('Agg')
 batch_size = 50
 frame_buffer_size = 1000
-w, h = 50, 50
+w, h = 84, 84
 # put initial frames in the buffer
 frame_buffer = RollingBuffer(frame_buffer_size)
 initial_frames = getFrames(frame_buffer_size)
@@ -20,7 +20,7 @@ for frame in initial_frames:
 # set up input for random frames.
 inp = tf.placeholder(tf.float32, shape=[None, 10, h, w])
 desired_outs = tf.placeholder(tf.float32, shape=[None, h, w])
-lstm = tf.nn.rnn_cell.BasicLSTMCell(h*w)
+lstm = tf.nn.rnn_cell.BasicLSTMCell(256)
 state = tf.zeros(shape=[batch_size, lstm.state_size])
 outs_list = []
 for i in range(10):
@@ -30,7 +30,14 @@ for i in range(10):
         tmp = tf.reshape(inp[:, i, :, :], [-1, h*w])
         print tmp.get_shape()
         output, state = lstm(tmp, state, scope=scope)
-output = tf.reshape(output, [-1, h, w])
+lstm_output = output
+W1 = tf.Variable(tf.random_normal([256, 256]))
+b1 = tf.Variable(tf.constant(0.1, shape=[256]))
+W2 = tf.Variable(tf.random_normal([256, w*h]))
+b2 = tf.Variable(tf.constant(0.1, shape=[w*h]))
+hidden = tf.nn.relu(tf.matmul(lstm_output, W1) + b1)
+output = tf.nn.sigmoid(tf.matmul(hidden, W2) + b2)
+
 
 loss = tf.reduce_mean(tf.pow(output - desired_outs, 2))
 train_batch = tf.train.AdamOptimizer().minimize(loss)
