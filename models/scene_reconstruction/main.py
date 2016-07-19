@@ -33,15 +33,15 @@ for i in range(10):
         output, state = lstm(tmp, state, scope=scope)
 lstm_output = output
 W1 = tf.Variable(tf.random_normal([256, 256]))
-b1 = tf.Variable(tf.constant(0.1, shape=[256]))
+b1 = tf.Variable(tf.constant(0.5, shape=[256]))
 W2 = tf.Variable(tf.random_normal([256, w*h]))
 b2 = tf.Variable(tf.constant(0.1, shape=[w*h]))
-hidden = tf.nn.sigmoid(tf.matmul(lstm_output, W1) + b1)
-output = tf.nn.sigmoid(tf.matmul(hidden, W2) + b2)
+hidden = tf.nn.relu(tf.matmul(lstm_output, W1) + b1)
+output = 255.0 * tf.nn.sigmoid(tf.matmul(hidden, W2) + b2)
 output = tf.reshape(output, [-1, h, w])
 
 
-loss = tf.reduce_mean(tf.pow(output - desired_outs, 2))
+loss = tf.reduce_mean(tf.pow(output - 255.0*desired_outs, 2))
 train_batch = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(loss)
 print 'here!'
 print w, h
@@ -67,11 +67,11 @@ while True:
     print i, _loss
     if i % 100 == 0:
         print i, loss
-        plt.imshow(255.0 * bgs[0], cmap='Greys_r')
+        plt.imshow(bgs[0], cmap='Greys_r')
         plt.savefig('./images/background_%s.png' % i)
         plt.savefig('./images/background.png')
         plt.close()
-        plt.imshow(255.0 * desired_outs[0])
+        plt.imshow(desired_outs[0])
         plt.savefig('./images/actual.png')
     i += 1
     getFrames(1)
