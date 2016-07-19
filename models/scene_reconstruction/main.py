@@ -33,9 +33,9 @@ for i in range(10):
         output, state = lstm(tmp, state, scope=scope)
 lstm_output = output
 W1 = tf.Variable(tf.random_normal([256, 256]))
-b1 = tf.Variable(tf.constant(1, shape=[256]))
+b1 = tf.Variable(tf.constant(1.0, shape=[256]))
 W2 = tf.Variable(tf.random_normal([256, w*h]))
-b2 = tf.Variable(tf.constant(1, shape=[w*h]))
+b2 = tf.Variable(tf.constant(1.0, shape=[w*h]))
 hidden = tf.nn.relu(tf.matmul(lstm_output, W1) + b1)
 output = tf.nn.sigmoid(tf.matmul(hidden, W2) + b2)
 output = tf.reshape(output, [-1, h, w])
