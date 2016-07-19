@@ -8,7 +8,7 @@ import numpy as np
 matplotlib.use('Agg')
 batch_size = 50
 frame_buffer_size = 1000
-w, h = 84, 84
+w, h = 10, 10
 # put initial frames in the buffer
 frame_buffer = RollingBuffer(frame_buffer_size)
 initial_frames = getFrames(frame_buffer_size)
