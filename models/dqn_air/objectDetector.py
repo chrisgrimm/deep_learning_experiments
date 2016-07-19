@@ -57,7 +57,8 @@ class AIR(object):
         for name in self.vars.keys():
             tf.assign(other.vars[name], self.vars[name])
 
-
+    def convLayer(self, vars):
+        tf.nn
 
     def setup_network(self):
         print 'setting up network!'
