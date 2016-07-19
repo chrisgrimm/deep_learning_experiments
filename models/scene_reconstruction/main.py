@@ -64,6 +64,7 @@ while True:
     inp_data = make_batch(frame_buffer, batch_size)
     feed_dict = {inp: inp_data, desired_outs: frame_buffer.sample(batch_size)}
     [_, bgs, _loss] = sess.run([train_batch, output, loss], feed_dict)
+    print i, _loss
     if i % 100 == 0:
         print i, loss
         plt.imshow(bgs[0], cmap='Greys_r')
