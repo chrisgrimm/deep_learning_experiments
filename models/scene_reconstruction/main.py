@@ -42,7 +42,7 @@ output = tf.reshape(output, [-1, h, w])
 
 
 loss = tf.reduce_mean(tf.pow(output - desired_outs, 2))
-train_batch = tf.train.AdamOptimizer().minimize(loss)
+train_batch = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(loss)
 print 'here!'
 print w, h
 
@@ -69,6 +69,7 @@ while True:
         print i, loss
         plt.imshow(bgs[0], cmap='Greys_r')
         plt.savefig('./images/background_%s.png' % i)
+        plt.savefig('./images/background.png' % i)
     i += 1
 
 
