@@ -70,6 +70,9 @@ while True:
         plt.imshow(255.0 * bgs[0], cmap='Greys_r')
         plt.savefig('./images/background_%s.png' % i)
         plt.savefig('./images/background.png')
+        plt.close()
+        plt.imshow(255.0 * desired_outs[0])
+        plt.savefig('./images/actual.png')
     i += 1
     getFrames(1)
 
