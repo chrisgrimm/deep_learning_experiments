@@ -72,7 +72,7 @@ while True:
         plt.savefig('./images/background_%s.png' % i)
         plt.savefig('./images/background.png')
         plt.close()
-        plt.imshow(desired_outs[0])
+        plt.imshow(out_data[0])
         plt.savefig('./images/actual.png')
     i += 1
     getFrames(1)
