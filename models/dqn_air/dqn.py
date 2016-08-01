@@ -2,9 +2,10 @@ import numpy as np
 import tensorflow as tf
 import cv2
 from models.dqn_air.objectDetector import AIR
+from models.dqn_air.object_location_extractor import LocExtractor
 
 class DQN:
-    def __init__(self, params,name):
+    def __init__(self, params,name, locExtractor):
         self.network_type = 'nips'
         self.params = params
         self.network_name = name
@@ -43,9 +44,9 @@ class DQN:
         #fc3
         flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
         print params['batch']
-        self.obj_detector = AIR(84, 84, 256, 3, params['batch'], 'air'+name, flat_input)
+        #self.obj_detector = locExtractor.hook(flat_input)
         # only take the last frame from the input.
-        self.o2_flat = self.obj_detector.output
+        self.o2_flat = locExtractor.hook(flat_input)
         self.o2_flat = tf.nn.batch_normalization(self.o2_flat, tf.zeros_like(self.o2_flat), tf.ones_like(self.o2_flat), 0, 1, 1)
         layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
         self.w3 = tf.Variable(tf.random_normal([dim,hiddens], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')

@@ -73,6 +73,7 @@ class AIR(object):
         self.what_registers = []
         self.output = tf.zeros([self.batch_size, 25*self.N])
         # step through the lstm.
+        self.outs = []
         for iter in range(self.N):
             # pull something off the lstm
             print self.input.get_shape()
@@ -100,7 +101,9 @@ class AIR(object):
 
             concated = tf.concat(1, [what, where_flat])
             out, _ = hook_net(concated, self.additive_weights, [tf.nn.relu, tf.nn.relu])
-            self.output += out
+            #self.outs.append(tf.reshape(out, [-1, 1, 3])
+            #self.output += out
+        self.output = tf.concat()
 
         # construct dense output
         #self.output = tf.concat(1, [self.what_registers[0], self.where_registers[0]])

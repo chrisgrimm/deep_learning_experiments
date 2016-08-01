@@ -9,6 +9,7 @@ import cv2
 from scipy import misc
 import gc #garbage colloector
 import thread
+from models.dqn_air.object_location_extractor import LocExtractor
 
 gc.enable()
 
@@ -65,8 +66,10 @@ class deep_atari:
 
     def build_net(self):
         print 'Building QNet and targetnet...'
-        self.qnet = DQN(self.params,'qnet')
-        self.targetnet = DQN(self.params,'targetnet')
+        locExtractor = LocExtractor(params['batch'], 3, 10)
+
+        self.qnet = DQN(self.params,'qnet', locExtractor)
+        self.targetnet = DQN(self.params,'targetnet', locExtractor)
         self.sess.run(tf.initialize_all_variables())
         saver_dict = {
                 'qw3':self.qnet.w3,'qb3':self.qnet.b3,
@@ -84,7 +87,7 @@ class deep_atari:
             self.targetnet.w5.assign(self.qnet.w5),self.targetnet.b5.assign(self.qnet.b5)]
 
         self.sess.run(self.cp_ops)
-        self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
+        #self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
 
         if self.params['ckpt_file'] is not None:
             print 'loading checkpoint : ' + self.params['ckpt_file']
@@ -138,7 +141,7 @@ class deep_atari:
             if self.training and self.params['copy_freq'] > 0 and self.step % self.params['copy_freq'] == 0 and self.DB.get_size() > self.params['train_start']:
                 print '&&& Copying Qnet to targetnet\n'
                 self.sess.run(self.cp_ops)
-                self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
+                #self.qnet.obj_detector.copyTo(self.targetnet.obj_detector)
 
 
             if self.training and self.step % self.params['learning_interval'] == 0 and self.DB.get_size() > self.params['train_start'] :
