@@ -21,39 +21,42 @@ class DQN:
         # -------
 
         #conv1
-        #layer_name = 'conv1' ; size = 8 ; channels = 4 ; filters = 16 ; stride = 4
-        #self.w1 = tf.Variable(tf.random_normal([size,size,channels,filters], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
-        #self.b1 = tf.Variable(tf.constant(0.1, shape=[filters]),name=self.network_name + '_'+layer_name+'_biases')
-        #self.c1 = tf.nn.conv2d(self.x, self.w1, strides=[1, stride, stride, 1], padding='VALID',name=self.network_name + '_'+layer_name+'_convs')
-        #self.o1 = tf.nn.relu(tf.add(self.c1,self.b1),name=self.network_name + '_'+layer_name+'_activations')
-        #self.n1 = tf.nn.lrn(self.o1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
+        layer_name = 'conv1' ; size = 8 ; channels = 4 ; filters = 16 ; stride = 4
+        self.w1 = tf.Variable(tf.random_normal([size,size,channels,filters], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
+        self.b1 = tf.Variable(tf.constant(0.1, shape=[filters]),name=self.network_name + '_'+layer_name+'_biases')
+        self.c1 = tf.nn.conv2d(self.x, self.w1, strides=[1, stride, stride, 1], padding='VALID',name=self.network_name + '_'+layer_name+'_convs')
+        self.o1 = tf.nn.relu(tf.add(self.c1,self.b1),name=self.network_name + '_'+layer_name+'_activations')
+        self.n1 = tf.nn.lrn(self.o1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
 
         #conv2
-        #layer_name = 'conv2' ; size = 4 ; channels = 16 ; filters = 32 ; stride = 2
-        #self.w2 = tf.Variable(tf.random_normal([size,size,channels,filters], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
-        #self.b2 = tf.Variable(tf.constant(0.1, shape=[filters]),name=self.network_name + '_'+layer_name+'_biases')
-        #self.c2 = tf.nn.conv2d(self.o1, self.w2, strides=[1, stride, stride, 1], padding='VALID',name=self.network_name + '_'+layer_name+'_convs')
-        #self.o2 = tf.nn.relu(tf.add(self.c2,self.b2),name=self.network_name + '_'+layer_name+'_activations')
-        #self.n2 = tf.nn.lrn(self.o2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
+        layer_name = 'conv2' ; size = 4 ; channels = 16 ; filters = 32 ; stride = 2
+        self.w2 = tf.Variable(tf.random_normal([size,size,channels,filters], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
+        self.b2 = tf.Variable(tf.constant(0.1, shape=[filters]),name=self.network_name + '_'+layer_name+'_biases')
+        self.c2 = tf.nn.conv2d(self.o1, self.w2, strides=[1, stride, stride, 1], padding='VALID',name=self.network_name + '_'+layer_name+'_convs')
+        self.o2 = tf.nn.relu(tf.add(self.c2,self.b2),name=self.network_name + '_'+layer_name+'_activations')
+        self.n2 = tf.nn.lrn(self.o2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
 
         #flat
-        #o2_shape = self.o2.get_shape().as_list()
+        o2_shape = self.o2.get_shape().as_list()
 
 
 
         #fc3
-        frames = []
-        flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
-        for i in range(4):
-            flat_input = tf.reshape(self.x[:, :, :, i], [-1, 84*84])
-            frames.append(locExtractor.hook(flat_input))
-        self.o2_flat = tf.concat(1, frames)
-        print params['batch']
+        #frames = []
+        #flat_input = tf.reshape(self.x[:, :, :, 3], [-1, 84*84])
+        #for i in range(4):
+        #    flat_input = tf.reshape(self.x[:, :, :, i], [-1, 84*84])
+        #    frames.append(locExtractor.hook(flat_input))
+        #self.o2_flat = tf.concat(1, frames)
+        #print params['batch']
         #self.obj_detector = locExtractor.hook(flat_input)
         # only take the last frame from the input.
         #self.o2_flat = locExtractor.hook(flat_input)
-        self.o2_flat = tf.nn.batch_normalization(self.o2_flat, tf.zeros_like(self.o2_flat), tf.ones_like(self.o2_flat), 0, 1, 1)
-        layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
+        #self.o2_flat = tf.nn.batch_normalization(self.o2_flat, tf.zeros_like(self.o2_flat), tf.ones_like(self.o2_flat), 0, 1, 1)
+        #layer_name = 'fc3' ; hiddens = 256 ; dim = self.o2_flat.get_shape()[1].value
+        layer_name = 'fc3' ; hiddens = 256 ; dim = o2_shape[1]*o2_shape[2]*o2_shape[3]
+        self.o2_flat = tf.reshape(self.o2, [-1,dim],name=self.network_name + '_'+layer_name+'_input_flat')
+
         self.w3 = tf.Variable(tf.random_normal([dim,hiddens], stddev=0.01),name=self.network_name + '_'+layer_name+'_weights')
         self.b3 = tf.Variable(tf.constant(0.1, shape=[hiddens]),name=self.network_name + '_'+layer_name+'_biases')
         self.ip3 = tf.add(tf.matmul(self.o2_flat,self.w3),self.b3,name=self.network_name + '_'+layer_name+'_ips')
